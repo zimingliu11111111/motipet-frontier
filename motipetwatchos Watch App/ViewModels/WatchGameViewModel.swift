@@ -4,50 +4,41 @@ import SwiftUI
 @MainActor
 class WatchGameViewModel: ObservableObject {
     @Published var petStatus = PetStatus()
-    @Published var lastReadinessScore: Double = 85.0
+    @Published var lastReadinessScore: Double = 80
     @Published var showLevelUpAnimation = false
-    
-    private let dataService: MockDataService = MockDataService()
-    private var animationTimer: Timer?
-    
-    init() {
-        updateStatus()
-    }
-    
+
+    private let mockService = MockDataService()
+    private var overlayTimer: Timer?
+
     func startMeasurement() {
-        // V1: 简单的模拟测量
-        // V2+: 启动正念App或HealthKit测量
-        let newScore = dataService.generateMockReading()
-        let result = dataService.processNewReading(newScore)
-        
-        lastReadinessScore = newScore
-        petStatus = dataService.getStatus()
-        
-        // 处理升级
-        if result.leveledUp {
-            showLevelUpCelebration()
-        }
+        let score = mockService.generateMockReading()
+        let status = mockService.processNewReading(score)
+        apply(status: status)
     }
-    
-    private func updateStatus() {
-        Task {
-            petStatus = await dataService.getCurrentStatus()
-        }
+
+    private func apply(status: PetStatus) {
+        petStatus = status
+        lastReadinessScore = Double(status.readinessScore)
+        handleLevelUp(status)
     }
-    
-    private func showLevelUpCelebration() {
+
+    private func handleLevelUp(_ status: PetStatus) {
+        guard status.leveledUp else {
+            showLevelUpAnimation = false
+            overlayTimer?.invalidate()
+            return
+        }
+
         showLevelUpAnimation = true
-        
-        // 3秒后隐藏
-        animationTimer?.invalidate()
-        animationTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { _ in
+        overlayTimer?.invalidate()
+        overlayTimer = Timer.scheduledTimer(withTimeInterval: max(3.0, Double(status.forceHappySeconds)), repeats: false) { [weak self] _ in
             Task { @MainActor in
-                self.showLevelUpAnimation = false
+                self?.showLevelUpAnimation = false
             }
         }
     }
-    
+
     deinit {
-        animationTimer?.invalidate()
+        overlayTimer?.invalidate()
     }
 }

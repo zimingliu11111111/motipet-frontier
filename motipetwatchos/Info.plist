@@ -2,10 +2,25 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>EXAppExtensionAttributes</key>
-	<dict>
-		<key>EXExtensionPointIdentifier</key>
-		<string>com.apple.appintents-extension</string>
-	</dict>
+    <key>EXAppExtensionAttributes</key>
+    <dict>
+        <key>EXExtensionPointIdentifier</key>
+        <string>com.apple.appintents-extension</string>
+    </dict>
+    <key>NSExtension</key>
+    <dict>
+        <key>NSExtensionAttributes</key>
+        <dict>
+            <key>CLKComplicationPrincipalClass</key>
+            <string>$(PRODUCT_MODULE_NAME).ComplicationController</string>
+            <key>CLKComplicationSupportedFamilies</key>
+            <array>
+                <string>CLKComplicationFamilyGraphicCircular</string>
+                <string>CLKComplicationFamilyCircularSmall</string>
+            </array>
+        </dict>
+        <key>NSExtensionPointIdentifier</key>
+        <string>com.apple.complication</string>
+    </dict>
 </dict>
 </plist>

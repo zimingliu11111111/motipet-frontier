@@ -1,46 +1,82 @@
 import Foundation
 
-protocol DataServiceProtocol {
-    func getCurrentStatus() async -> PetStatus
-    func generateMockReading() -> Double
-    func syncWithHealthKit() async -> Void
-}
-
-class MockDataService: DataServiceProtocol {
+final class MockDataService {
     private var currentStatus = PetStatus()
-    
+    private var totalXP: Int = 0
+
     func getCurrentStatus() async -> PetStatus {
+        currentStatus
+    }
+
+    func generateMockReading() -> Double {
+        Double.random(in: 70...95)
+    }
+
+    func processNewReading(_ readinessScore: Double) -> PetStatus {
+        let roundedScore = max(0, min(100, Int(readinessScore.rounded())))
+        let xpBase = max(0, roundedScore - 60)
+        let trainingLoad = Double.random(in: 120...420)
+        let xpBonus = trainingLoad > 220 ? Int((trainingLoad - 200) / 8.0) : 0
+        let xpGainTotal = xpBase + xpBonus
+
+        let previousLevel = currentStatus.level
+        totalXP += xpGainTotal
+        let progress = LevelSystem.progress(for: totalXP)
+
+        currentStatus.level = progress.level
+        currentStatus.totalXP = totalXP
+        currentStatus.xpIntoLevel = progress.xpIntoLevel
+        currentStatus.xpToNextLevel = progress.xpToNextLevel
+        currentStatus.readinessScore = roundedScore
+        currentStatus.readinessDiagnosis = diagnosis(for: roundedScore)
+        currentStatus.petMood = mood(for: roundedScore, xpBonus: xpBonus)
+        currentStatus.stateReason = reason(for: roundedScore, xpBonus: xpBonus)
+
+        let leveledUp = progress.level > previousLevel
+        let happinessValue = happiness(score: roundedScore, xpBonus: xpBonus, leveledUp: leveledUp)
+        currentStatus.happinessScore = happinessValue
+        currentStatus.happinessState = happinessState(for: happinessValue)
+        currentStatus.leveledUp = leveledUp
+        currentStatus.forceHappySeconds = leveledUp ? 3 : 0
+
         return currentStatus
     }
-    
-    func generateMockReading() -> Double {
-        return Double.random(in: 70...95)
-    }
-    
-    func syncWithHealthKit() async -> Void {
-        // V2+: 实现 HealthKit 集成
-    }
-    
-    func processNewReading(_ readinessScore: Double) -> (xpGained: Int, leveledUp: Bool) {
-        let xpGained = max(0, Int(readinessScore - 60))
-        let oldLevel = currentStatus.level
-        
-        currentStatus.addXP(xpGained)
-        currentStatus.energy = readinessScore
-        
-        let leveledUp = currentStatus.level > oldLevel
-        return (xpGained, leveledUp)
-    }
-    
-    func toggleAccessory(_ accessory: AccessoryType) {
-        if currentStatus.accessories.contains(accessory) {
-            currentStatus.accessories.removeAll { $0 == accessory }
-        } else {
-            currentStatus.accessories.append(accessory)
+
+    private func diagnosis(for score: Int) -> String {
+        switch score {
+        case 90...: return "巅峰"
+        case 75..<90: return "充沛"
+        case 60..<75: return "稳定"
+        default: return "疲劳"
         }
     }
-    
-    func getStatus() -> PetStatus {
-        return currentStatus
+
+    private func mood(for score: Int, xpBonus: Int) -> PetMood {
+        if score >= 88 { return .energetic }
+        if score <= 55 { return .tired }
+        if xpBonus > 25 { return .energetic }
+        return .normal
+    }
+
+    private func reason(for score: Int, xpBonus: Int) -> String {
+        if score >= 90 { return "昨晚睡眠质量极佳" }
+        if xpBonus > 30 { return "训练成效卓著" }
+        if score <= 55 { return "恢复不足，请稍作调整" }
+        if score >= 75 { return "心率变异性保持稳定" }
+        return "状态稳步提升"
+    }
+
+    private func happiness(score: Int, xpBonus: Int, leveledUp: Bool) -> Int {
+        var base = max(40, min(95, score + xpBonus / 3))
+        if leveledUp { base = max(base, 85) }
+        return min(100, base)
+    }
+
+    private func happinessState(for score: Int) -> HappinessState {
+        switch score {
+        case ..<55: return .low
+        case 55..<80: return .content
+        default: return .happy
+        }
     }
 }
