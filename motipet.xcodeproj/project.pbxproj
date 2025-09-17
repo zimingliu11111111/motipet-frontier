@@ -1,0 +1,957 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		282139452E7A51A2009D6726 /* motipetwatchos Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 282139252E7A519F009D6726 /* motipetwatchos Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		282138F62E7A4B8C009D6726 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 282138E02E7A4B8B009D6726 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 282138E72E7A4B8B009D6726;
+			remoteInfo = motipet;
+		};
+		282139002E7A4B8C009D6726 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 282138E02E7A4B8B009D6726 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 282138E72E7A4B8B009D6726;
+			remoteInfo = motipet;
+		};
+		282139322E7A51A2009D6726 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 282138E02E7A4B8B009D6726 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 282139242E7A519F009D6726;
+			remoteInfo = "motipetwatchos Watch App";
+		};
+		2821393C2E7A51A2009D6726 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 282138E02E7A4B8B009D6726 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 282139242E7A519F009D6726;
+			remoteInfo = "motipetwatchos Watch App";
+		};
+		282139432E7A51A2009D6726 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 282138E02E7A4B8B009D6726 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 282139242E7A519F009D6726;
+			remoteInfo = "motipetwatchos Watch App";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		282139492E7A51A2009D6726 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				282139452E7A51A2009D6726 /* motipetwatchos Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		282138E82E7A4B8B009D6726 /* motipet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = motipet.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		282138F52E7A4B8C009D6726 /* motipetTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = motipetTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		282138FF2E7A4B8C009D6726 /* motipetUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = motipetUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		282139252E7A519F009D6726 /* motipetwatchos Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "motipetwatchos Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		282139312E7A51A2009D6726 /* motipetwatchos Watch AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "motipetwatchos Watch AppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2821393B2E7A51A2009D6726 /* motipetwatchos Watch AppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "motipetwatchos Watch AppUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		282138EA2E7A4B8B009D6726 /* motipet */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = motipet;
+			sourceTree = "<group>";
+		};
+		282138F82E7A4B8C009D6726 /* motipetTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = motipetTests;
+			sourceTree = "<group>";
+		};
+		282139022E7A4B8C009D6726 /* motipetUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = motipetUITests;
+			sourceTree = "<group>";
+		};
+		282139172E7A4D0C009D6726 /* motipetwatchos */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = motipetwatchos;
+			sourceTree = "<group>";
+		};
+		282139262E7A51A0009D6726 /* motipetwatchos Watch App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "motipetwatchos Watch App";
+			sourceTree = "<group>";
+		};
+		282139342E7A51A2009D6726 /* motipetwatchos Watch AppTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "motipetwatchos Watch AppTests";
+			sourceTree = "<group>";
+		};
+		2821393E2E7A51A2009D6726 /* motipetwatchos Watch AppUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "motipetwatchos Watch AppUITests";
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		282138E52E7A4B8B009D6726 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		282138F22E7A4B8C009D6726 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		282138FC2E7A4B8C009D6726 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		282139222E7A519F009D6726 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2821392E2E7A51A2009D6726 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		282139382E7A51A2009D6726 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		282138DF2E7A4B8B009D6726 = {
+			isa = PBXGroup;
+			children = (
+				282138EA2E7A4B8B009D6726 /* motipet */,
+				282138F82E7A4B8C009D6726 /* motipetTests */,
+				282139022E7A4B8C009D6726 /* motipetUITests */,
+				282139172E7A4D0C009D6726 /* motipetwatchos */,
+				282139262E7A51A0009D6726 /* motipetwatchos Watch App */,
+				282139342E7A51A2009D6726 /* motipetwatchos Watch AppTests */,
+				2821393E2E7A51A2009D6726 /* motipetwatchos Watch AppUITests */,
+				282138E92E7A4B8B009D6726 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		282138E92E7A4B8B009D6726 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				282138E82E7A4B8B009D6726 /* motipet.app */,
+				282138F52E7A4B8C009D6726 /* motipetTests.xctest */,
+				282138FF2E7A4B8C009D6726 /* motipetUITests.xctest */,
+				282139252E7A519F009D6726 /* motipetwatchos Watch App.app */,
+				282139312E7A51A2009D6726 /* motipetwatchos Watch AppTests.xctest */,
+				2821393B2E7A51A2009D6726 /* motipetwatchos Watch AppUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		282138E72E7A4B8B009D6726 /* motipet */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 282139092E7A4B8C009D6726 /* Build configuration list for PBXNativeTarget "motipet" */;
+			buildPhases = (
+				282138E42E7A4B8B009D6726 /* Sources */,
+				282138E52E7A4B8B009D6726 /* Frameworks */,
+				282138E62E7A4B8B009D6726 /* Resources */,
+				282139492E7A51A2009D6726 /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				282139442E7A51A2009D6726 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				282138EA2E7A4B8B009D6726 /* motipet */,
+			);
+			name = motipet;
+			packageProductDependencies = (
+			);
+			productName = motipet;
+			productReference = 282138E82E7A4B8B009D6726 /* motipet.app */;
+			productType = "com.apple.product-type.application";
+		};
+		282138F42E7A4B8C009D6726 /* motipetTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2821390C2E7A4B8C009D6726 /* Build configuration list for PBXNativeTarget "motipetTests" */;
+			buildPhases = (
+				282138F12E7A4B8C009D6726 /* Sources */,
+				282138F22E7A4B8C009D6726 /* Frameworks */,
+				282138F32E7A4B8C009D6726 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				282138F72E7A4B8C009D6726 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				282138F82E7A4B8C009D6726 /* motipetTests */,
+			);
+			name = motipetTests;
+			packageProductDependencies = (
+			);
+			productName = motipetTests;
+			productReference = 282138F52E7A4B8C009D6726 /* motipetTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		282138FE2E7A4B8C009D6726 /* motipetUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2821390F2E7A4B8C009D6726 /* Build configuration list for PBXNativeTarget "motipetUITests" */;
+			buildPhases = (
+				282138FB2E7A4B8C009D6726 /* Sources */,
+				282138FC2E7A4B8C009D6726 /* Frameworks */,
+				282138FD2E7A4B8C009D6726 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				282139012E7A4B8C009D6726 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				282139022E7A4B8C009D6726 /* motipetUITests */,
+			);
+			name = motipetUITests;
+			packageProductDependencies = (
+			);
+			productName = motipetUITests;
+			productReference = 282138FF2E7A4B8C009D6726 /* motipetUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		282139242E7A519F009D6726 /* motipetwatchos Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 282139462E7A51A2009D6726 /* Build configuration list for PBXNativeTarget "motipetwatchos Watch App" */;
+			buildPhases = (
+				282139212E7A519F009D6726 /* Sources */,
+				282139222E7A519F009D6726 /* Frameworks */,
+				282139232E7A519F009D6726 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				282139262E7A51A0009D6726 /* motipetwatchos Watch App */,
+			);
+			name = "motipetwatchos Watch App";
+			packageProductDependencies = (
+			);
+			productName = "motipetwatchos Watch App";
+			productReference = 282139252E7A519F009D6726 /* motipetwatchos Watch App.app */;
+			productType = "com.apple.product-type.application";
+		};
+		282139302E7A51A2009D6726 /* motipetwatchos Watch AppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2821394A2E7A51A2009D6726 /* Build configuration list for PBXNativeTarget "motipetwatchos Watch AppTests" */;
+			buildPhases = (
+				2821392D2E7A51A2009D6726 /* Sources */,
+				2821392E2E7A51A2009D6726 /* Frameworks */,
+				2821392F2E7A51A2009D6726 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				282139332E7A51A2009D6726 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				282139342E7A51A2009D6726 /* motipetwatchos Watch AppTests */,
+			);
+			name = "motipetwatchos Watch AppTests";
+			packageProductDependencies = (
+			);
+			productName = "motipetwatchos Watch AppTests";
+			productReference = 282139312E7A51A2009D6726 /* motipetwatchos Watch AppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		2821393A2E7A51A2009D6726 /* motipetwatchos Watch AppUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2821394D2E7A51A2009D6726 /* Build configuration list for PBXNativeTarget "motipetwatchos Watch AppUITests" */;
+			buildPhases = (
+				282139372E7A51A2009D6726 /* Sources */,
+				282139382E7A51A2009D6726 /* Frameworks */,
+				282139392E7A51A2009D6726 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2821393D2E7A51A2009D6726 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				2821393E2E7A51A2009D6726 /* motipetwatchos Watch AppUITests */,
+			);
+			name = "motipetwatchos Watch AppUITests";
+			packageProductDependencies = (
+			);
+			productName = "motipetwatchos Watch AppUITests";
+			productReference = 2821393B2E7A51A2009D6726 /* motipetwatchos Watch AppUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		282138E02E7A4B8B009D6726 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1640;
+				LastUpgradeCheck = 1640;
+				TargetAttributes = {
+					282138E72E7A4B8B009D6726 = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					282138F42E7A4B8C009D6726 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = 282138E72E7A4B8B009D6726;
+					};
+					282138FE2E7A4B8C009D6726 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = 282138E72E7A4B8B009D6726;
+					};
+					282139242E7A519F009D6726 = {
+						CreatedOnToolsVersion = 16.4;
+					};
+					282139302E7A51A2009D6726 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = 282139242E7A519F009D6726;
+					};
+					2821393A2E7A51A2009D6726 = {
+						CreatedOnToolsVersion = 16.4;
+						TestTargetID = 282139242E7A519F009D6726;
+					};
+				};
+			};
+			buildConfigurationList = 282138E32E7A4B8B009D6726 /* Build configuration list for PBXProject "motipet" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 282138DF2E7A4B8B009D6726;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 282138E92E7A4B8B009D6726 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				282138E72E7A4B8B009D6726 /* motipet */,
+				282138F42E7A4B8C009D6726 /* motipetTests */,
+				282138FE2E7A4B8C009D6726 /* motipetUITests */,
+				282139242E7A519F009D6726 /* motipetwatchos Watch App */,
+				282139302E7A51A2009D6726 /* motipetwatchos Watch AppTests */,
+				2821393A2E7A51A2009D6726 /* motipetwatchos Watch AppUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		282138E62E7A4B8B009D6726 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		282138F32E7A4B8C009D6726 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		282138FD2E7A4B8C009D6726 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		282139232E7A519F009D6726 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2821392F2E7A51A2009D6726 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		282139392E7A51A2009D6726 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		282138E42E7A4B8B009D6726 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		282138F12E7A4B8C009D6726 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		282138FB2E7A4B8C009D6726 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		282139212E7A519F009D6726 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2821392D2E7A51A2009D6726 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		282139372E7A51A2009D6726 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		282138F72E7A4B8C009D6726 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 282138E72E7A4B8B009D6726 /* motipet */;
+			targetProxy = 282138F62E7A4B8C009D6726 /* PBXContainerItemProxy */;
+		};
+		282139012E7A4B8C009D6726 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 282138E72E7A4B8B009D6726 /* motipet */;
+			targetProxy = 282139002E7A4B8C009D6726 /* PBXContainerItemProxy */;
+		};
+		282139332E7A51A2009D6726 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 282139242E7A519F009D6726 /* motipetwatchos Watch App */;
+			targetProxy = 282139322E7A51A2009D6726 /* PBXContainerItemProxy */;
+		};
+		2821393D2E7A51A2009D6726 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 282139242E7A519F009D6726 /* motipetwatchos Watch App */;
+			targetProxy = 2821393C2E7A51A2009D6726 /* PBXContainerItemProxy */;
+		};
+		282139442E7A51A2009D6726 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 282139242E7A519F009D6726 /* motipetwatchos Watch App */;
+			targetProxy = 282139432E7A51A2009D6726 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		282139072E7A4B8C009D6726 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 7XWNKBZH8N;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		282139082E7A4B8C009D6726 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 7XWNKBZH8N;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		2821390A2E7A4B8C009D6726 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7XWNKBZH8N;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "-.motipet";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2821390B2E7A4B8C009D6726 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7XWNKBZH8N;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "-.motipet";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		2821390D2E7A4B8C009D6726 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7XWNKBZH8N;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "-.motipetTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/motipet.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/motipet";
+			};
+			name = Debug;
+		};
+		2821390E2E7A4B8C009D6726 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7XWNKBZH8N;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "-.motipetTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/motipet.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/motipet";
+			};
+			name = Release;
+		};
+		282139102E7A4B8C009D6726 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7XWNKBZH8N;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "-.motipetUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = motipet;
+			};
+			name = Debug;
+		};
+		282139112E7A4B8C009D6726 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7XWNKBZH8N;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "-.motipetUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = motipet;
+			};
+			name = Release;
+		};
+		282139472E7A51A2009D6726 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7XWNKBZH8N;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = motipetwatchos;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "-.motipet";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "-.motipet.watchkitapp";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 11.5;
+			};
+			name = Debug;
+		};
+		282139482E7A51A2009D6726 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7XWNKBZH8N;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = motipetwatchos;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "-.motipet";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "-.motipet.watchkitapp";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 11.5;
+			};
+			name = Release;
+		};
+		2821394B2E7A51A2009D6726 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7XWNKBZH8N;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "-.motipetwatchos-Watch-AppTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/motipetwatchos Watch App.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/motipetwatchos Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 11.5;
+			};
+			name = Debug;
+		};
+		2821394C2E7A51A2009D6726 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7XWNKBZH8N;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "-.motipetwatchos-Watch-AppTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/motipetwatchos Watch App.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/motipetwatchos Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 11.5;
+			};
+			name = Release;
+		};
+		2821394E2E7A51A2009D6726 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7XWNKBZH8N;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "-.motipetwatchos-Watch-AppUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = "motipetwatchos Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 11.5;
+			};
+			name = Debug;
+		};
+		2821394F2E7A51A2009D6726 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7XWNKBZH8N;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "-.motipetwatchos-Watch-AppUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = "motipetwatchos Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 11.5;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		282138E32E7A4B8B009D6726 /* Build configuration list for PBXProject "motipet" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				282139072E7A4B8C009D6726 /* Debug */,
+				282139082E7A4B8C009D6726 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		282139092E7A4B8C009D6726 /* Build configuration list for PBXNativeTarget "motipet" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2821390A2E7A4B8C009D6726 /* Debug */,
+				2821390B2E7A4B8C009D6726 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2821390C2E7A4B8C009D6726 /* Build configuration list for PBXNativeTarget "motipetTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2821390D2E7A4B8C009D6726 /* Debug */,
+				2821390E2E7A4B8C009D6726 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2821390F2E7A4B8C009D6726 /* Build configuration list for PBXNativeTarget "motipetUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				282139102E7A4B8C009D6726 /* Debug */,
+				282139112E7A4B8C009D6726 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		282139462E7A51A2009D6726 /* Build configuration list for PBXNativeTarget "motipetwatchos Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				282139472E7A51A2009D6726 /* Debug */,
+				282139482E7A51A2009D6726 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2821394A2E7A51A2009D6726 /* Build configuration list for PBXNativeTarget "motipetwatchos Watch AppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2821394B2E7A51A2009D6726 /* Debug */,
+				2821394C2E7A51A2009D6726 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2821394D2E7A51A2009D6726 /* Build configuration list for PBXNativeTarget "motipetwatchos Watch AppUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2821394E2E7A51A2009D6726 /* Debug */,
+				2821394F2E7A51A2009D6726 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 282138E02E7A4B8B009D6726 /* Project object */;
+}
