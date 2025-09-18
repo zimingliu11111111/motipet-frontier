@@ -1,4 +1,4 @@
-﻿import Foundation
+import Foundation
 
 enum PetMood: String, Codable {
     case energetic
@@ -13,9 +13,9 @@ enum HappinessState: String, Codable {
 
     var displayName: String {
         switch self {
-        case .happy: return "开心"
-        case .content: return "平静"
-        case .low: return "低落"
+        case .happy: return "Happy"
+        case .content: return "Content"
+        case .low: return "Low"
         }
     }
 }
@@ -26,7 +26,7 @@ struct PetStatus: Codable {
     var xpIntoLevel: Int = 0
     var xpToNextLevel: Int = 100
     var readinessScore: Int = 75
-    var readinessDiagnosis: String = "正常"
+    var readinessDiagnosis: String = "Normal"
     var stateReason: String = ""
     var petMood: PetMood = .normal
     var happinessScore: Int = 80
@@ -82,7 +82,7 @@ enum AccessoryType: String, CaseIterable, Codable {
     var displayName: String {
         switch self {
         case .sunglasses:
-            return "墨镜"
+            return "Sunglasses"
         }
     }
 }

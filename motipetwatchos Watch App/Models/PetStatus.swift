@@ -1,4 +1,4 @@
-﻿import Foundation
+import Foundation
 
 enum PetMood: String, Codable {
     case energetic

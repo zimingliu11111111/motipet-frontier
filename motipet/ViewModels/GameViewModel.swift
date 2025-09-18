@@ -4,10 +4,10 @@ import SwiftUI
 @MainActor
 class GameViewModel: ObservableObject {
     enum ManualEventTrigger: String, CaseIterable, Identifiable {
-        case none = "无事件"
-        case taskCompleted = "任务完成"
-        case levelUp = "等级提升"
-        case accessoryUnlocked = "获得装扮"
+        case none = "No Event"
+        case taskCompleted = "Task Completed"
+        case levelUp = "Level Up"
+        case accessoryUnlocked = "Accessory Unlocked"
 
         var id: String { rawValue }
         var displayName: String { rawValue }
@@ -29,142 +29,139 @@ class GameViewModel: ObservableObject {
     private var baseAnimation: PetAnimation = .idle
 
     init() {
-        Task { await initializeStatus() }
+        resetToIdleState()
+    }
+
+    deinit {
+        animationTimer?.invalidate()
+        levelOverlayTimer?.invalidate()
     }
 
     func generateMockData() {
-        Task { await fetchLatestState() }
+        Task {
+            await refreshWithMockData()
+        }
     }
 
     func applyManualInput(score: Int, trainingLoad: Int?, event: ManualEventTrigger) {
-        let clampedScore = max(0, min(score, 100))
-        let trainingOverride = trainingLoad.map { max(0, Double($0)) }
-        var status = mockService.processNewReading(Double(clampedScore), trainingLoadOverride: trainingOverride)
-
-        switch event {
-        case .none:
-            break
-        case .taskCompleted:
-            status.stateReason = "完成今日任务！"
-            status.forceHappySeconds = max(status.forceHappySeconds, 3)
-        case .accessoryUnlocked:
-            status.stateReason = "获得新装扮！"
-            status.forceHappySeconds = max(status.forceHappySeconds, 3)
-            accessorySet.insert(.sunglasses)
-        case .levelUp:
-            status = mockService.forceLevelUp(reason: "等级提升！")
+        Task {
+            await processManualScenario(score: score, trainingLoad: trainingLoad, event: event)
         }
-
-        status.mergeAccessories(Array(accessorySet))
-        mockService.applyExternalStatus(status)
-        apply(status: status)
     }
 
     func toggleAccessory(_ accessory: AccessoryType) {
-        if accessorySet.contains(accessory) {
+        if petStatus.accessories.contains(accessory) {
+            petStatus.accessories.removeAll { $0 == accessory }
             accessorySet.remove(accessory)
         } else {
+            petStatus.accessories.append(accessory)
             accessorySet.insert(accessory)
         }
-
-        var updatedStatus = petStatus
-        updatedStatus.mergeAccessories(Array(accessorySet))
-        mockService.applyExternalStatus(updatedStatus)
-        apply(status: updatedStatus)
     }
 
     func resetToIdleState() {
+        currentAnimation = .idle
+        baseAnimation = .idle
+        showLevelUpAnimation = false
         animationTimer?.invalidate()
         levelOverlayTimer?.invalidate()
-        showLevelUpAnimation = false
-        currentAnimation = .idle
-        errorMessage = nil
     }
 
     func clearErrorMessage() {
         errorMessage = nil
     }
 
-    private func initializeStatus() async {
-        let initialStatus = await mockService.getCurrentStatus()
-        var mergedStatus = initialStatus
-        mergedStatus.mergeAccessories(Array(accessorySet))
-        apply(status: mergedStatus)
-    }
-
-    private func fetchLatestState() async {
+    private func refreshWithMockData() async {
         isLoading = true
-        defer { isLoading = false }
-
-        let mockScore = mockService.generateMockReading()
+        errorMessage = nil
 
         do {
-            let apiResponse = try await apiService.fetchDailyState(using: mockScore)
-            var status = petStatus
-            status.apply(apiResponse: apiResponse, accessories: Array(accessorySet))
-            mockService.applyExternalStatus(status)
-            apply(status: status)
-            return
+            let readinessScore = mockService.generateMockReading()
+            let newStatus = mockService.processNewReading(readinessScore)
+
+            await updateUI(with: newStatus, readiness: readinessScore)
         } catch {
-            errorMessage = "未能连接后端，已使用本地模拟数据。\n\(error.localizedDescription)"
+            errorMessage = "Failed to generate mock data: \(error.localizedDescription)"
         }
 
-        let fallbackStatus = mockService.processNewReading(mockScore)
-        var mergedStatus = fallbackStatus
-        mergedStatus.mergeAccessories(Array(accessorySet))
-        mockService.applyExternalStatus(mergedStatus)
-        apply(status: mergedStatus)
+        isLoading = false
     }
 
-    private func apply(status: PetStatus) {
+    private func processManualScenario(score: Int, trainingLoad: Int?, event: ManualEventTrigger) async {
+        isLoading = true
+        errorMessage = nil
+
+        do {
+            let readinessScore = Double(score)
+            let newStatus: PetStatus
+
+            switch event {
+            case .none:
+                newStatus = mockService.processNewReading(readinessScore, trainingLoadOverride: trainingLoad.map(Double.init))
+            case .taskCompleted:
+                newStatus = mockService.processNewReading(readinessScore, trainingLoadOverride: trainingLoad.map(Double.init))
+            case .levelUp:
+                newStatus = mockService.forceLevelUp(reason: "Manual level up triggered")
+            case .accessoryUnlocked:
+                let baseStatus = mockService.processNewReading(readinessScore, trainingLoadOverride: trainingLoad.map(Double.init))
+                newStatus = baseStatus
+                if !accessorySet.contains(.sunglasses) {
+                    accessorySet.insert(.sunglasses)
+                }
+            }
+
+            await updateUI(with: newStatus, readiness: readinessScore)
+        } catch {
+            errorMessage = "Failed to process manual input: \(error.localizedDescription)"
+        }
+
+        isLoading = false
+    }
+
+    @MainActor
+    private func updateUI(with status: PetStatus, readiness: Double) {
+        let previousLevel = petStatus.level
         petStatus = status
-        lastReadinessScore = Double(status.readinessScore)
-        updateAnimation(with: status)
-        handleLevelUpIfNeeded(status)
+        petStatus.accessories = Array(accessorySet)
+        lastReadinessScore = readiness
+
+        updateAnimation(for: status)
+
+        if status.level > previousLevel || status.leveledUp {
+            triggerLevelUpAnimation()
+        }
     }
 
-    private func updateAnimation(with status: PetStatus) {
-        let targetBase = PetAnimation.animation(for: status.petMood)
-        baseAnimation = targetBase
+    private func updateAnimation(for status: PetStatus) {
+        let newBaseAnimation = PetAnimation.animation(for: status.petMood)
+        baseAnimation = newBaseAnimation
 
         if status.forceHappySeconds > 0 {
-            playHappyAnimation(for: status.forceHappySeconds)
+            playHappyAnimation(duration: TimeInterval(status.forceHappySeconds))
         } else {
-            animationTimer?.invalidate()
-            currentAnimation = targetBase
+            currentAnimation = newBaseAnimation
         }
     }
 
-    private func playHappyAnimation(for seconds: Int) {
+    private func playHappyAnimation(duration: TimeInterval) {
         animationTimer?.invalidate()
         currentAnimation = .happy
 
-        animationTimer = Timer.scheduledTimer(withTimeInterval: TimeInterval(seconds), repeats: false) { [weak self] _ in
+        animationTimer = Timer.scheduledTimer(withTimeInterval: duration, repeats: false) { [weak self] _ in
             Task { @MainActor in
                 self?.currentAnimation = self?.baseAnimation ?? .idle
             }
         }
     }
 
-    private func handleLevelUpIfNeeded(_ status: PetStatus) {
-        guard status.leveledUp else {
-            showLevelUpAnimation = false
-            levelOverlayTimer?.invalidate()
-            return
-        }
-
+    private func triggerLevelUpAnimation() {
         showLevelUpAnimation = true
         levelOverlayTimer?.invalidate()
-        let duration = max(3.0, Double(status.forceHappySeconds))
-        levelOverlayTimer = Timer.scheduledTimer(withTimeInterval: duration, repeats: false) { [weak self] _ in
+
+        levelOverlayTimer = Timer.scheduledTimer(withTimeInterval: 2.5, repeats: false) { [weak self] _ in
             Task { @MainActor in
                 self?.showLevelUpAnimation = false
             }
         }
-    }
-
-    deinit {
-        animationTimer?.invalidate()
-        levelOverlayTimer?.invalidate()
     }
 }

@@ -65,7 +65,7 @@ struct ContentView: View {
             HStack {
                 readinessRing
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("µÈ¼¶ L\(gameViewModel.petStatus.level)")
+                    Text("ç­‰çº§ L\(gameViewModel.petStatus.level)")
                         .font(.headline)
                         .foregroundStyle(Color.white)
                     Text(gameViewModel.petStatus.stateReason)
@@ -75,10 +75,10 @@ struct ContentView: View {
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 4) {
-                    Text("ÇéĞ÷: \(gameViewModel.petStatus.happinessState.displayName)")
+                    Text("æƒ…ç»ª: \(gameViewModel.petStatus.happinessState.displayName)")
                         .font(.caption)
                         .foregroundStyle(Color.white)
-                    Text("ÆÀ·Ö: \(gameViewModel.petStatus.happinessScore)")
+                    Text("è¯„åˆ†: \(gameViewModel.petStatus.happinessScore)")
                         .font(.caption2)
                         .foregroundStyle(Color.white.opacity(0.7))
                 }
@@ -144,11 +144,11 @@ struct ContentView: View {
     private var bottomControlsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("¾­Ñé: \(gameViewModel.petStatus.xpDisplayText)")
+                Text("ç»éªŒ: \(gameViewModel.petStatus.xpDisplayText)")
                     .font(.headline)
                     .foregroundStyle(Color.white)
                 Spacer()
-                Text("×Ü¾­Ñé \(gameViewModel.petStatus.totalXP)")
+                Text("æ€»ç»éªŒ \(gameViewModel.petStatus.totalXP)")
                     .font(.caption)
                     .foregroundStyle(Color.white.opacity(0.6))
             }
@@ -160,7 +160,7 @@ struct ContentView: View {
 
             HStack(spacing: 14) {
                 Button(action: { gameViewModel.generateMockData() }) {
-                    Label("»ñÈ¡Êı¾İ", systemImage: "sparkles")
+                    Label("è·å–æ•°æ®", systemImage: "sparkles")
                         .font(.subheadline)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 8)
@@ -170,7 +170,7 @@ struct ContentView: View {
                 }
 
                 Button(action: { gameViewModel.toggleAccessory(.sunglasses) }) {
-                    Text(gameViewModel.petStatus.accessories.contains(.sunglasses) ? "ÕªÏÂÄ«¾µ" : "´÷ÉÏÄ«¾µ")
+                    Text(gameViewModel.petStatus.accessories.contains(.sunglasses) ? "æ‘˜ä¸‹å¢¨é•œ" : "æˆ´ä¸Šå¢¨é•œ")
                         .font(.subheadline)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 8)
@@ -184,31 +184,31 @@ struct ContentView: View {
 
     private var manualTestingPanel: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("µ÷ÊÔÖúÊÖ")
+            Text("æ‰‹åŠ¨æµ‹è¯•")
                 .font(.headline)
                 .foregroundStyle(Color.white)
 
             VStack(alignment: .leading, spacing: 8) {
-                Text("×¼±¸¶È£º\(Int(manualReadiness))")
+                Text("å‡†å¤‡åº¦ï¼š\(Int(manualReadiness))")
                     .font(.subheadline)
                     .foregroundStyle(.white)
                 Slider(value: $manualReadiness, in: 0...100, step: 1)
             }
 
-            Toggle("×Ô¶¨ÒåÑµÁ·¸ººÉ (AU)", isOn: $manualTrainingLoadEnabled)
+            Toggle("è‡ªå®šä¹‰è®­ç»ƒè´Ÿè· (AU)", isOn: $manualTrainingLoadEnabled)
                 .toggleStyle(SwitchToggleStyle(tint: .blue))
                 .foregroundStyle(Color.white)
 
             if manualTrainingLoadEnabled {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("ÑµÁ·¸ººÉ£º\(Int(manualTrainingLoad))")
+                    Text("è®­ç»ƒè´Ÿè·ï¼š\(Int(manualTrainingLoad))")
                         .font(.subheadline)
                         .foregroundStyle(.white)
                     Slider(value: $manualTrainingLoad, in: 100...500, step: 5)
                 }
             }
 
-            Picker("´¥·¢ÊÂ¼ş", selection: $selectedManualEvent) {
+            Picker("ç‰¹æ®Šäº‹ä»¶", selection: $selectedManualEvent) {
                 ForEach(GameViewModel.ManualEventTrigger.allCases) { event in
                     Text(event.displayName).tag(event)
                 }
@@ -216,13 +216,13 @@ struct ContentView: View {
             .pickerStyle(MenuPickerStyle())
             .foregroundStyle(Color.white)
 
-            Text("µ±Ç°¶¯»­£º\(gameViewModel.currentAnimation.rawValue)")
+            Text("å½“å‰åŠ¨ç”»ï¼š\(gameViewModel.currentAnimation.rawValue)")
                 .font(.caption)
                 .foregroundStyle(Color.white.opacity(0.7))
 
             HStack(spacing: 12) {
                 Button(action: applyManualScenario) {
-                    Text("Ó¦ÓÃÊäÈë")
+                    Text("åº”ç”¨åœºæ™¯")
                         .font(.subheadline)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
@@ -232,7 +232,7 @@ struct ContentView: View {
                 }
 
                 Button(action: gameViewModel.resetToIdleState) {
-                    Text("ÖØÖÃ³èÎï")
+                    Text("é‡ç½®å¾…æœº")
                         .font(.subheadline)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
@@ -270,7 +270,7 @@ struct ContentView: View {
                     .foregroundColor(.white)
                     .multilineTextAlignment(.leading)
                 Spacer(minLength: 8)
-                Button("¹Ø±Õ") {
+                Button("å…³é—­") {
                     withAnimation { gameViewModel.clearErrorMessage() }
                 }
                 .font(.caption)
@@ -291,13 +291,13 @@ struct ContentView: View {
                     Color.black.opacity(0.45)
                         .ignoresSafeArea()
                     VStack(spacing: 12) {
-                        Text("??")
+                        Text("ğŸ‰")
                             .font(.system(size: 48))
-                        Text("Éı¼¶³É¹¦")
+                        Text("å‡çº§æˆåŠŸ")
                             .font(.title3)
                             .fontWeight(.bold)
                             .foregroundStyle(Color.yellow)
-                        Text("µÈ¼¶ \(gameViewModel.petStatus.level)")
+                        Text("ç­‰çº§ \(gameViewModel.petStatus.level)")
                             .font(.headline)
                             .foregroundStyle(Color.white)
                     }

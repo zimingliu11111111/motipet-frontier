@@ -1,4 +1,4 @@
-﻿import Foundation
+import Foundation
 
 final class MockDataService {
     private var currentStatus = PetStatus()
@@ -75,10 +75,10 @@ final class MockDataService {
 
     private func diagnosis(for score: Int) -> String {
         switch score {
-        case 90...: return "巅峰"
-        case 75..<90: return "充沛"
-        case 60..<75: return "稳定"
-        default: return "疲劳"
+        case 90...: return "Peak"
+        case 75..<90: return "Good"
+        case 60..<75: return "Stable"
+        default: return "Tired"
         }
     }
 
@@ -90,11 +90,11 @@ final class MockDataService {
     }
 
     private func reason(for score: Int, xpBonus: Int) -> String {
-        if score >= 90 { return "昨晚睡眠质量极佳" }
-        if xpBonus > 30 { return "训练成效卓著" }
-        if score <= 55 { return "恢复不足，请稍作调整" }
-        if score >= 75 { return "心率变异性保持稳定" }
-        return "状态稳步提升"
+        if score >= 90 { return "Excellent sleep quality last night" }
+        if xpBonus > 30 { return "Outstanding training results" }
+        if score <= 55 { return "Insufficient recovery, need adjustment" }
+        if score >= 75 { return "Heart rate variability stable" }
+        return "Steady improvement"
     }
 
     private func happiness(score: Int, xpBonus: Int, leveledUp: Bool) -> Int {
