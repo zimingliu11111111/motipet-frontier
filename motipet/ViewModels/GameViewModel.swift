@@ -88,7 +88,8 @@ class GameViewModel: ObservableObject {
     private let dizzyMaxDuration: TimeInterval = 10.0
     private let dizzyCycleDuration: TimeInterval = 0.9
     private let dizzyDurationPerLoop: TimeInterval = 1.5
-    private var longPressInteractionActive = false
+    private var currentLongPressTarget: PetInteractionTarget?
+    private var isChaseTailPriming = false
 
     init() {
         setupInitialState()
@@ -145,21 +146,21 @@ class GameViewModel: ObservableObject {
 
     func handleInteraction(_ event: PetInteractionEvent) {
         switch event {
-        case .tap:
-            longPressInteractionActive = false
-            sendManualAnimationRequest(names: ["pethead"], loopLast: false, restoreToIdle: true)
-        case .longPressBegan:
-            longPressInteractionActive = true
-            sendManualAnimationRequest(names: ["petjaw"], loopLast: true, restoreToIdle: false)
-        case .longPressEnded:
-            if longPressInteractionActive {
-                longPressInteractionActive = false
+        case .tap(let target):
+            currentLongPressTarget = nil
+            playSingleInteraction(for: target)
+        case .longPressBegan(let target):
+            currentLongPressTarget = target
+            isChaseTailPriming = false
+            playLongPressInteraction(for: target)
+        case .longPressEnded(let target):
+            if currentLongPressTarget == target {
+                currentLongPressTarget = nil
                 playBaseAnimation()
             }
-        case .rapidTap(let count):
-            longPressInteractionActive = false
-            guard count > 0 else { return }
-            playChaseTailSequence(tapCount: count)
+        case .rapidTap(let count, let isFinal):
+            currentLongPressTarget = nil
+            handleRapidTap(count: count, isFinal: isFinal)
         }
     }
 
@@ -190,6 +191,8 @@ class GameViewModel: ObservableObject {
         manualAnimationRequest = ManualAnimation.idle.request
         baseAnimation = .idle
         currentAnimation = .idle
+        currentLongPressTarget = nil
+        isChaseTailPriming = false
         showLevelUpAnimation = false
         animationTimer?.invalidate()
         levelOverlayTimer?.invalidate()
@@ -205,19 +208,57 @@ class GameViewModel: ObservableObject {
     }
 
     private func playBaseAnimation() {
+        isChaseTailPriming = false
         sendManualAnimationRequest(names: [baseAnimation.rawValue], loopLast: true, restoreToIdle: false)
         currentAnimation = baseAnimation
     }
 
-    private func playChaseTailSequence(tapCount: Int) {
-        let loops = max(1, min(maxChaseTailLoops, Int(ceil(Double(tapCount) / 2.0))))
-        var sequence = Array(repeating: "ChaseTail", count: loops)
-        let desiredDizzyDuration = min(dizzyMaxDuration, Double(loops) * dizzyDurationPerLoop)
+    private func playSingleInteraction(for target: PetInteractionTarget) {
+        isChaseTailPriming = false
+        let name = animationName(for: target)
+        sendManualAnimationRequest(names: [name], loopLast: false, restoreToIdle: true)
+    }
+
+    private func playLongPressInteraction(for target: PetInteractionTarget) {
+        isChaseTailPriming = false
+        let name = animationName(for: target)
+        sendManualAnimationRequest(names: [name], loopLast: true, restoreToIdle: false)
+    }
+
+    private func handleRapidTap(count: Int, isFinal: Bool) {
+        guard count >= 2 else { return }
+
+        if isFinal {
+            isChaseTailPriming = false
+            let loops = loops(forTapCount: count)
+            runChaseTailSequence(loops: loops)
+        } else if !isChaseTailPriming {
+            isChaseTailPriming = true
+            sendManualAnimationRequest(names: ["ChaseTail"], loopLast: true, restoreToIdle: false)
+        }
+    }
+
+    private func loops(forTapCount count: Int) -> Int {
+        let computed = Int(ceil(Double(count) / 2.0))
+        return max(1, min(maxChaseTailLoops, computed))
+    }
+
+    private func runChaseTailSequence(loops: Int) {
+        let cappedLoops = max(1, min(maxChaseTailLoops, loops))
+        var sequence = Array(repeating: "ChaseTail", count: cappedLoops)
+        let desiredDizzyDuration = min(dizzyMaxDuration, Double(cappedLoops) * dizzyDurationPerLoop)
         let repeats = max(1, Int(round(desiredDizzyDuration / dizzyCycleDuration)))
         if repeats > 0 {
             sequence.append(contentsOf: Array(repeating: "dizzy", count: repeats))
         }
         sendManualAnimationRequest(names: sequence, loopLast: false, restoreToIdle: true)
+    }
+
+    private func animationName(for target: PetInteractionTarget) -> String {
+        switch target {
+        case .head: return "pethead"
+        case .body: return "petjaw"
+        }
     }
 
     private func setupInitialState() {
@@ -229,6 +270,8 @@ class GameViewModel: ObservableObject {
         lastReadinessScore = 80
         baseAnimation = .idle
         currentAnimation = .idle
+        currentLongPressTarget = nil
+        isChaseTailPriming = false
     }
 
     private func refreshWithMockData() async {
