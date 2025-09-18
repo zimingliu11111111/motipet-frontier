@@ -45,7 +45,19 @@ class GameScene: SKScene {
         petNode?.updateAccessories(accessories)
     }
 
+    func playAnimation(named name: String, loop: Bool = false, restoreToIdle: Bool = true) {
+        petNode?.playAnimation(named: name, loop: loop, restoreToIdle: restoreToIdle)
+    }
+
+    func playAnimationSequence(_ names: [String], loopLast: Bool = false, restoreToIdle: Bool = true) {
+        if names.count <= 1, let first = names.first {
+            playAnimation(named: first, loop: loopLast, restoreToIdle: restoreToIdle)
+        } else {
+            petNode?.playAnimationSequence(names, loopLast: loopLast, restoreToIdle: restoreToIdle)
+        }
+    }
+
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        petNode?.playAnimation(.happy)
+        petNode?.playAnimation(named: "Happy", loop: false, restoreToIdle: true)
     }
 }

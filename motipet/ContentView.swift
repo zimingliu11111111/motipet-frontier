@@ -6,11 +6,11 @@ struct ContentView: View {
     @State private var gameScene = GameScene()
     @State private var sceneSize: CGSize = .zero
     @State private var hasLoadedInitialData = false
-
     @State private var manualReadiness: Double = 80
-    @State private var manualTrainingLoad: Double = 220
-    @State private var manualTrainingLoadEnabled: Bool = false
-    @State private var selectedManualEvent: GameViewModel.ManualEventTrigger = .none
+
+    private let animationColumns: [GridItem] = [
+        GridItem(.adaptive(minimum: 92), spacing: 12)
+    ]
 
     var body: some View {
         ZStack {
@@ -37,16 +37,28 @@ struct ContentView: View {
 
             levelUpOverlay
         }
-        .onChange(of: gameViewModel.currentAnimation) { _, newAnimation in
+        .onChange(of: gameViewModel.currentAnimation) { newAnimation in
             gameScene.updatePetAnimation(newAnimation)
         }
-        .onChange(of: gameViewModel.petStatus.accessories) { _, newAccessories in
+        .onChange(of: gameViewModel.petStatus.accessories) { newAccessories in
             gameScene.updatePetAccessories(newAccessories)
+        }
+        .onChange(of: manualReadiness) { newValue in
+            gameViewModel.updateReadinessDisplay(to: Int(newValue))
+        }
+        .onChange(of: gameViewModel.manualAnimationRequest) { request in
+            guard let request else { return }
+            if request.names.count <= 1, let name = request.names.first {
+                gameScene.playAnimation(named: name, loop: request.loopLast, restoreToIdle: request.restoreToIdle)
+            } else {
+                gameScene.playAnimationSequence(request.names, loopLast: request.loopLast, restoreToIdle: request.restoreToIdle)
+            }
+            gameViewModel.clearManualAnimationRequest()
         }
         .onAppear {
             if !hasLoadedInitialData {
                 hasLoadedInitialData = true
-                gameViewModel.generateMockData()
+                gameViewModel.updateReadinessDisplay(to: Int(manualReadiness))
             }
         }
     }
@@ -148,7 +160,7 @@ struct ContentView: View {
                     .font(.headline)
                     .foregroundStyle(Color.white)
                 Spacer()
-                Text("总经验 \(gameViewModel.petStatus.totalXP)")
+                Text("总经�?\(gameViewModel.petStatus.totalXP)")
                     .font(.caption)
                     .foregroundStyle(Color.white.opacity(0.6))
             }
@@ -183,64 +195,16 @@ struct ContentView: View {
     }
 
     private var manualTestingPanel: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("手动测试")
+        VStack(alignment: .leading, spacing: 16) {
+            Text("动画调试")
                 .font(.headline)
                 .foregroundStyle(Color.white)
 
-            VStack(alignment: .leading, spacing: 8) {
-                Text("准备度：\(Int(manualReadiness))")
-                    .font(.subheadline)
-                    .foregroundStyle(.white)
-                Slider(value: $manualReadiness, in: 0...100, step: 1)
-            }
-
-            Toggle("自定义训练负荷 (AU)", isOn: $manualTrainingLoadEnabled)
-                .toggleStyle(SwitchToggleStyle(tint: .blue))
-                .foregroundStyle(Color.white)
-
-            if manualTrainingLoadEnabled {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("训练负荷：\(Int(manualTrainingLoad))")
-                        .font(.subheadline)
-                        .foregroundStyle(.white)
-                    Slider(value: $manualTrainingLoad, in: 100...500, step: 5)
-                }
-            }
-
-            Picker("特殊事件", selection: $selectedManualEvent) {
-                ForEach(GameViewModel.ManualEventTrigger.allCases) { event in
-                    Text(event.displayName).tag(event)
-                }
-            }
-            .pickerStyle(MenuPickerStyle())
-            .foregroundStyle(Color.white)
-
-            Text("当前动画：\(gameViewModel.currentAnimation.rawValue)")
-                .font(.caption)
-                .foregroundStyle(Color.white.opacity(0.7))
-
-            HStack(spacing: 12) {
-                Button(action: applyManualScenario) {
-                    Text("应用场景")
-                        .font(.subheadline)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(Color.green.opacity(0.85))
-                        .foregroundColor(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-
-                Button(action: gameViewModel.resetToIdleState) {
-                    Text("重置待机")
-                        .font(.subheadline)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(Color.gray.opacity(0.4))
-                        .foregroundColor(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-            }
+            readinessControls
+            Divider().background(Color.white.opacity(0.1))
+            eventControls
+            Divider().background(Color.white.opacity(0.1))
+            animationGrid
         }
         .padding(16)
         .background(
@@ -249,14 +213,55 @@ struct ContentView: View {
         )
     }
 
-    private func applyManualScenario() {
-        let trainingValue = manualTrainingLoadEnabled ? Int(manualTrainingLoad) : nil
-        gameViewModel.applyManualInput(
-            score: Int(manualReadiness),
-            trainingLoad: trainingValue,
-            event: selectedManualEvent
-        )
-        selectedManualEvent = .none
+    private var readinessControls: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("准备度：\(Int(manualReadiness))")
+                .font(.subheadline)
+                .foregroundStyle(.white)
+            Slider(value: $manualReadiness, in: 0...100, step: 1)
+        }
+    }
+
+    private var eventControls: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("事件模拟")
+                .font(.subheadline)
+                .foregroundStyle(.white)
+
+            HStack(spacing: 12) {
+                Button("任务完成") { gameViewModel.triggerTaskCompleted() }
+                Button("等级提升") { gameViewModel.triggerLevelUpEvent() }
+                Button("获得装扮") { gameViewModel.triggerAccessoryUnlocked() }
+            }
+            .buttonStyle(SecondaryCapsuleButtonStyle())
+
+            HStack(spacing: 12) {
+                Button("播放欢呼") { gameViewModel.playManualAnimation(.hurray) }
+                Button("恢复待机") { gameViewModel.resetToIdleState() }
+            }
+            .buttonStyle(SecondaryCapsuleButtonStyle())
+        }
+    }
+
+    private var animationGrid: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("选择动画")
+                .font(.subheadline)
+                .foregroundStyle(.white)
+
+            LazyVGrid(columns: animationColumns, spacing: 12) {
+                ForEach(GameViewModel.ManualAnimation.allCases) { animation in
+                    Button(animation.displayName) {
+                        gameViewModel.playManualAnimation(animation)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(Color.white.opacity(0.08))
+                    .foregroundColor(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+            }
+        }
     }
 
     private func errorBanner(_ message: String) -> some View {
@@ -310,6 +315,18 @@ struct ContentView: View {
             }
         }
         .animation(.spring(response: 0.4, dampingFraction: 0.7), value: gameViewModel.showLevelUpAnimation)
+    }
+}
+
+private struct SecondaryCapsuleButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.caption)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(Color.white.opacity(configuration.isPressed ? 0.2 : 0.12))
+            .foregroundColor(.white)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }
 

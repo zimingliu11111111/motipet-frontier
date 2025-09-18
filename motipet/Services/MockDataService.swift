@@ -13,16 +13,13 @@ final class MockDataService {
     }
 
     @discardableResult
-    func processNewReading(_ readinessScore: Double, trainingLoadOverride: Double? = nil) -> PetStatus {
+    func processNewReading(_ readinessScore: Double) -> PetStatus {
         let clampedScore = max(0, min(readinessScore, 100))
-        let trainingLoad = trainingLoadOverride ?? Double.random(in: 120...420)
         let xpBase = max(0, Int(clampedScore - 60))
-        let xpBonus = trainingLoad > 220 ? Int((trainingLoad - 200) / 8.0) : 0
-        let xpGainTotal = xpBase + xpBonus
+        totalXP += xpBase
 
-        let previousLevel = currentStatus.level
-        totalXP += xpGainTotal
         let progress = LevelSystem.progress(for: totalXP)
+        let previousLevel = currentStatus.level
 
         currentStatus.level = progress.level
         currentStatus.totalXP = totalXP
@@ -30,9 +27,9 @@ final class MockDataService {
         currentStatus.xpToNextLevel = progress.xpToNextLevel
         currentStatus.readinessScore = Int(clampedScore)
         currentStatus.readinessDiagnosis = diagnosis(for: Int(clampedScore))
-        currentStatus.petMood = mood(for: Int(clampedScore), xpBonus: xpBonus)
-        currentStatus.stateReason = reason(for: Int(clampedScore), xpBonus: xpBonus)
-        currentStatus.happinessScore = happiness(score: Int(clampedScore), xpBonus: xpBonus, leveledUp: progress.level > previousLevel)
+        currentStatus.petMood = mood(for: Int(clampedScore))
+        currentStatus.stateReason = reason(for: Int(clampedScore))
+        currentStatus.happinessScore = happiness(score: Int(clampedScore), leveledUp: progress.level > previousLevel)
         currentStatus.happinessState = happinessState(for: currentStatus.happinessScore)
         currentStatus.leveledUp = progress.level > previousLevel
         currentStatus.forceHappySeconds = currentStatus.leveledUp ? max(currentStatus.forceHappySeconds, 3) : 0
@@ -58,7 +55,7 @@ final class MockDataService {
         if let customReason = reason {
             currentStatus.stateReason = customReason
         }
-        currentStatus.happinessScore = max(currentStatus.happinessScore, 90)
+        currentStatus.happinessScore = max(currentStatus.happinessScore, 92)
         currentStatus.happinessState = happinessState(for: currentStatus.happinessScore)
 
         return currentStatus
@@ -69,37 +66,31 @@ final class MockDataService {
         totalXP = status.totalXP
     }
 
-    func resetAccessories() {
-        currentStatus.accessories = []
-    }
-
     private func diagnosis(for score: Int) -> String {
         switch score {
-        case 90...: return "Peak"
-        case 75..<90: return "Good"
-        case 60..<75: return "Stable"
-        default: return "Tired"
+        case 90...: return "巅峰"
+        case 75..<90: return "充沛"
+        case 60..<75: return "稳定"
+        default: return "疲劳"
         }
     }
 
-    private func mood(for score: Int, xpBonus: Int) -> PetMood {
+    private func mood(for score: Int) -> PetMood {
         if score >= 88 { return .energetic }
         if score <= 55 { return .tired }
-        if xpBonus > 25 { return .energetic }
         return .normal
     }
 
-    private func reason(for score: Int, xpBonus: Int) -> String {
-        if score >= 90 { return "Excellent sleep quality last night" }
-        if xpBonus > 30 { return "Outstanding training results" }
-        if score <= 55 { return "Insufficient recovery, need adjustment" }
-        if score >= 75 { return "Heart rate variability stable" }
-        return "Steady improvement"
+    private func reason(for score: Int) -> String {
+        if score >= 90 { return "昨晚睡眠质量极佳" }
+        if score <= 55 { return "恢复不足，请稍作调整" }
+        if score >= 75 { return "心率变异性保持稳�? }
+        return "状态稳步提�?
     }
 
-    private func happiness(score: Int, xpBonus: Int, leveledUp: Bool) -> Int {
-        var base = max(40, min(95, score + xpBonus / 3))
-        if leveledUp { base = max(base, 88) }
+    private func happiness(score: Int, leveledUp: Bool) -> Int {
+        var base = max(40, min(95, score))
+        if leveledUp { base = max(base, 90) }
         return min(100, base)
     }
 

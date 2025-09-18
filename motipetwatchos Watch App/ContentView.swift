@@ -98,7 +98,7 @@ struct ContentView: View {
                     VStack(spacing: 6) {
                         Text("🎉")
                             .font(.title2)
-                        Text("升级!")
+                        Text("升级！")
                             .font(.headline)
                             .fontWeight(.bold)
                             .foregroundStyle(.yellow)

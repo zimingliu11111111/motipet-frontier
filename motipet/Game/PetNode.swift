@@ -1,10 +1,14 @@
 import SpriteKit
 
 class PetNode: SKSpriteNode {
+    private struct AnimationClip {
+        let textures: [SKTexture]
+        let timePerFrame: Double
+    }
+
     private var spriteSheetTexture: SKTexture?
     private var spriteSheetData: AsepriteSpriteSheet?
-    private var animationCache: [PetAnimation: [SKTexture]] = [:]
-    private var currentAnimation: PetAnimation = .idle
+    private var animationCache: [String: AnimationClip] = [:]
     private var accessoryNodes: [AccessoryType: SKSpriteNode] = [:]
 
     override init(texture: SKTexture?, color: UIColor, size: CGSize) {
@@ -28,72 +32,67 @@ class PetNode: SKSpriteNode {
         spriteSheetTexture?.filteringMode = .nearest
         spriteSheetData = AnimationLoader.loadAnimationData()
 
-        if let frames = textures(for: .idle), let firstFrame = frames.first {
-            texture = firstFrame
+        if let clip = clip(forTag: "idle"), let first = clip.textures.first {
+            texture = first
         } else if let texture = spriteSheetTexture {
             self.texture = texture
         }
     }
 
-    private func textures(for animation: PetAnimation) -> [SKTexture]? {
-        if let cached = animationCache[animation] {
-            return cached
-        }
-
-        guard
-            let spriteSheet = spriteSheetTexture,
-            let sheetData = spriteSheetData,
-            let frameTag = sheetData.meta.frameTags.first(where: { $0.name.caseInsensitiveCompare(animation.rawValue) == .orderedSame })
-        else {
-            return nil
-        }
-
-        let sortedFrames = sheetData.frames.sorted { lhs, rhs in
-            intIndex(from: lhs.key) < intIndex(from: rhs.key)
-        }
-
-        var textures: [SKTexture] = []
-        for index in frameTag.from...frameTag.to {
-            guard index < sortedFrames.count else { continue }
-            let frameData = sortedFrames[index].value.frame
-            let sheetHeight = CGFloat(sheetData.meta.size.h)
-            let sheetWidth = CGFloat(sheetData.meta.size.w)
-
-            let rect = CGRect(
-                x: CGFloat(frameData.x) / sheetWidth,
-                y: CGFloat(sheetHeight - CGFloat(frameData.y) - CGFloat(frameData.h)) / sheetHeight,
-                width: CGFloat(frameData.w) / sheetWidth,
-                height: CGFloat(frameData.h) / sheetHeight
-            )
-
-            let texture = SKTexture(rect: rect, in: spriteSheet)
-            texture.filteringMode = .nearest
-            textures.append(texture)
-        }
-
-        animationCache[animation] = textures
-        return textures
+    func playAnimation(_ animation: PetAnimation) {
+        let shouldRestore = animation == .idle ? false : true
+        playAnimation(named: animation.rawValue, loop: animation.isLoop, restoreToIdle: shouldRestore)
     }
 
-    func playAnimation(_ animation: PetAnimation) {
-        currentAnimation = animation
+    func playAnimation(named tag: String, loop: Bool, restoreToIdle: Bool) {
+        guard let clip = clip(forTag: tag) else { return }
         removeAction(forKey: "pet_animation")
 
-        guard let frames = textures(for: animation), !frames.isEmpty else {
-            return
+        let animate = SKAction.animate(with: clip.textures, timePerFrame: clip.timePerFrame)
+        if loop {
+            run(SKAction.repeatForever(animate), withKey: "pet_animation")
+        } else if restoreToIdle {
+            let sequence = SKAction.sequence([animate, SKAction.run { [weak self] in
+                self?.playAnimation(.idle)
+            }])
+            run(sequence, withKey: "pet_animation")
+        } else {
+            run(animate, withKey: "pet_animation")
+        }
+    }
+
+    func playAnimationSequence(_ names: [String], loopLast: Bool, restoreToIdle: Bool) {
+        guard !names.isEmpty else { return }
+        removeAction(forKey: "pet_animation")
+
+        var actions: [SKAction] = []
+
+        for (index, name) in names.enumerated() {
+            guard let clip = clip(forTag: name) else { continue }
+            var action = SKAction.animate(with: clip.textures, timePerFrame: clip.timePerFrame)
+            if loopLast && index == names.count - 1 {
+                action = SKAction.repeatForever(action)
+            }
+            actions.append(action)
         }
 
-        texture = frames.first
-        let timePerFrame = animation == .idle ? 0.35 : 0.25
-        let animateAction = SKAction.animate(with: frames, timePerFrame: timePerFrame)
+        guard !actions.isEmpty else { return }
 
-        if animation.isLoop {
-            run(SKAction.repeatForever(animateAction), withKey: "pet_animation")
+        let combined: SKAction
+        if actions.count == 1 {
+            combined = actions[0]
         } else {
-            let completion = SKAction.run { [weak self] in
+            combined = SKAction.sequence(actions)
+        }
+
+        if loopLast {
+            run(combined, withKey: "pet_animation")
+        } else if restoreToIdle {
+            run(SKAction.sequence([combined, SKAction.run { [weak self] in
                 self?.playAnimation(.idle)
-            }
-            run(SKAction.sequence([animateAction, completion]), withKey: "pet_animation")
+            }]), withKey: "pet_animation")
+        } else {
+            run(combined, withKey: "pet_animation")
         }
     }
 
@@ -123,6 +122,54 @@ class PetNode: SKSpriteNode {
         for accessory in accessories where accessoryNodes[accessory] == nil {
             addAccessory(accessory)
         }
+    }
+
+    private func clip(forTag tag: String) -> AnimationClip? {
+        let key = tag.lowercased()
+        if let cached = animationCache[key] {
+            return cached
+        }
+
+        guard
+            let spriteSheet = spriteSheetTexture,
+            let sheetData = spriteSheetData,
+            let frameTag = sheetData.meta.frameTags.first(where: { $0.name.lowercased() == key })
+        else {
+            return nil
+        }
+
+        let sortedFrames = sheetData.frames.sorted { lhs, rhs in
+            intIndex(from: lhs.key) < intIndex(from: rhs.key)
+        }
+
+        var textures: [SKTexture] = []
+        var frameDurations: [Double] = []
+
+        for index in frameTag.from...frameTag.to {
+            guard index < sortedFrames.count else { continue }
+            let frameEntry = sortedFrames[index].value
+            let frame = frameEntry.frame
+            let sheetHeight = CGFloat(sheetData.meta.size.h)
+            let sheetWidth = CGFloat(sheetData.meta.size.w)
+
+            let rect = CGRect(
+                x: CGFloat(frame.x) / sheetWidth,
+                y: CGFloat(sheetHeight - CGFloat(frame.y) - CGFloat(frame.h)) / sheetHeight,
+                width: CGFloat(frame.w) / sheetWidth,
+                height: CGFloat(frame.h) / sheetHeight
+            )
+
+            let texture = SKTexture(rect: rect, in: spriteSheet)
+            texture.filteringMode = .nearest
+            textures.append(texture)
+            frameDurations.append(max(0.05, Double(frameEntry.duration) / 1000.0))
+        }
+
+        guard !textures.isEmpty else { return nil }
+        let average = frameDurations.reduce(0, +) / Double(frameDurations.count)
+        let clip = AnimationClip(textures: textures, timePerFrame: average)
+        animationCache[key] = clip
+        return clip
     }
 
     private func intIndex(from key: String) -> Int {
