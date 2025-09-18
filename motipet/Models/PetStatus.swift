@@ -1,4 +1,4 @@
-import Foundation
+﻿import Foundation
 
 enum PetMood: String, Codable {
     case energetic
@@ -68,7 +68,7 @@ struct PetStatus: Codable {
         happinessState = HappinessState(rawValue: apiResponse.happinessState) ?? .content
         leveledUp = apiResponse.leveledUp
         forceHappySeconds = apiResponse.forceHappySeconds
-        self.accessories = accessories
+        mergeAccessories(accessories)
     }
 
     mutating func mergeAccessories(_ accessories: [AccessoryType]) {

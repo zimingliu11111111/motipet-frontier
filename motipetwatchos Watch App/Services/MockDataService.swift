@@ -1,4 +1,4 @@
-import Foundation
+﻿import Foundation
 
 final class MockDataService {
     private var currentStatus = PetStatus()

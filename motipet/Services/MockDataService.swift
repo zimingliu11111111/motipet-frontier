@@ -1,4 +1,4 @@
-import Foundation
+﻿import Foundation
 
 final class MockDataService {
     private var currentStatus = PetStatus()
@@ -12,10 +12,11 @@ final class MockDataService {
         Double.random(in: 70...95)
     }
 
-    func processNewReading(_ readinessScore: Double) -> PetStatus {
-        let roundedScore = max(0, min(100, Int(readinessScore.rounded())))
-        let xpBase = max(0, roundedScore - 60)
-        let trainingLoad = Double.random(in: 120...420)
+    @discardableResult
+    func processNewReading(_ readinessScore: Double, trainingLoadOverride: Double? = nil) -> PetStatus {
+        let clampedScore = max(0, min(readinessScore, 100))
+        let trainingLoad = trainingLoadOverride ?? Double.random(in: 120...420)
+        let xpBase = max(0, Int(clampedScore - 60))
         let xpBonus = trainingLoad > 220 ? Int((trainingLoad - 200) / 8.0) : 0
         let xpGainTotal = xpBase + xpBonus
 
@@ -27,19 +28,49 @@ final class MockDataService {
         currentStatus.totalXP = totalXP
         currentStatus.xpIntoLevel = progress.xpIntoLevel
         currentStatus.xpToNextLevel = progress.xpToNextLevel
-        currentStatus.readinessScore = roundedScore
-        currentStatus.readinessDiagnosis = diagnosis(for: roundedScore)
-        currentStatus.petMood = mood(for: roundedScore, xpBonus: xpBonus)
-        currentStatus.stateReason = reason(for: roundedScore, xpBonus: xpBonus)
-
-        let leveledUp = progress.level > previousLevel
-        let happinessValue = happiness(score: roundedScore, xpBonus: xpBonus, leveledUp: leveledUp)
-        currentStatus.happinessScore = happinessValue
-        currentStatus.happinessState = happinessState(for: happinessValue)
-        currentStatus.leveledUp = leveledUp
-        currentStatus.forceHappySeconds = leveledUp ? 3 : 0
+        currentStatus.readinessScore = Int(clampedScore)
+        currentStatus.readinessDiagnosis = diagnosis(for: Int(clampedScore))
+        currentStatus.petMood = mood(for: Int(clampedScore), xpBonus: xpBonus)
+        currentStatus.stateReason = reason(for: Int(clampedScore), xpBonus: xpBonus)
+        currentStatus.happinessScore = happiness(score: Int(clampedScore), xpBonus: xpBonus, leveledUp: progress.level > previousLevel)
+        currentStatus.happinessState = happinessState(for: currentStatus.happinessScore)
+        currentStatus.leveledUp = progress.level > previousLevel
+        currentStatus.forceHappySeconds = currentStatus.leveledUp ? max(currentStatus.forceHappySeconds, 3) : 0
 
         return currentStatus
+    }
+
+    func forceLevelUp(reason: String? = nil) -> PetStatus {
+        var xpNeeded = LevelSystem.progress(for: totalXP).xpToNextLevel
+        if xpNeeded <= 0 {
+            xpNeeded = LevelSystem.extendStep
+        }
+
+        totalXP += xpNeeded
+        let progress = LevelSystem.progress(for: totalXP)
+
+        currentStatus.level = progress.level
+        currentStatus.totalXP = totalXP
+        currentStatus.xpIntoLevel = progress.xpIntoLevel
+        currentStatus.xpToNextLevel = progress.xpToNextLevel
+        currentStatus.leveledUp = true
+        currentStatus.forceHappySeconds = max(currentStatus.forceHappySeconds, 3)
+        if let customReason = reason {
+            currentStatus.stateReason = customReason
+        }
+        currentStatus.happinessScore = max(currentStatus.happinessScore, 90)
+        currentStatus.happinessState = happinessState(for: currentStatus.happinessScore)
+
+        return currentStatus
+    }
+
+    func applyExternalStatus(_ status: PetStatus) {
+        currentStatus = status
+        totalXP = status.totalXP
+    }
+
+    func resetAccessories() {
+        currentStatus.accessories = []
     }
 
     private func diagnosis(for score: Int) -> String {
@@ -68,7 +99,7 @@ final class MockDataService {
 
     private func happiness(score: Int, xpBonus: Int, leveledUp: Bool) -> Int {
         var base = max(40, min(95, score + xpBonus / 3))
-        if leveledUp { base = max(base, 85) }
+        if leveledUp { base = max(base, 88) }
         return min(100, base)
     }
 

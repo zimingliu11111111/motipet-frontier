@@ -7,20 +7,27 @@ struct ContentView: View {
     @State private var sceneSize: CGSize = .zero
     @State private var hasLoadedInitialData = false
 
+    @State private var manualReadiness: Double = 80
+    @State private var manualTrainingLoad: Double = 220
+    @State private var manualTrainingLoadEnabled: Bool = false
+    @State private var selectedManualEvent: GameViewModel.ManualEventTrigger = .none
+
     var body: some View {
         ZStack {
             backgroundLayer
 
             GeometryReader { geometry in
-                VStack(spacing: 18) {
-                    topStatusSection
-                    petAnimationSection(geometry: geometry)
-                    bottomControlsSection
+                ScrollView {
+                    VStack(spacing: 18) {
+                        topStatusSection
+                        petAnimationSection(geometry: geometry)
+                        bottomControlsSection
+                        manualTestingPanel
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, geometry.safeAreaInsets.top + 12)
+                    .padding(.bottom, geometry.safeAreaInsets.bottom + 24)
                 }
-                .frame(width: geometry.size.width, height: geometry.size.height)
-                .padding(.horizontal, 20)
-                .padding(.top, geometry.safeAreaInsets.top + 12)
-                .padding(.bottom, geometry.safeAreaInsets.bottom + 12)
             }
             .ignoresSafeArea()
 
@@ -58,7 +65,7 @@ struct ContentView: View {
             HStack {
                 readinessRing
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Á≠âÁ∫ß L\(gameViewModel.petStatus.level)")
+                    Text("µ»º∂ L\(gameViewModel.petStatus.level)")
                         .font(.headline)
                         .foregroundStyle(Color.white)
                     Text(gameViewModel.petStatus.stateReason)
@@ -68,10 +75,10 @@ struct ContentView: View {
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 4) {
-                    Text("ÊÉÖÁª™: \(gameViewModel.petStatus.happinessState.displayName)")
+                    Text("«È–˜: \(gameViewModel.petStatus.happinessState.displayName)")
                         .font(.caption)
                         .foregroundStyle(Color.white)
-                    Text("ËØÑÂàÜ: \(gameViewModel.petStatus.happinessScore)")
+                    Text("∆¿∑÷: \(gameViewModel.petStatus.happinessScore)")
                         .font(.caption2)
                         .foregroundStyle(Color.white.opacity(0.7))
                 }
@@ -111,7 +118,7 @@ struct ContentView: View {
     }
 
     private func petAnimationSection(geometry: GeometryProxy) -> some View {
-        let targetHeight = geometry.size.height * 0.5
+        let targetHeight = geometry.size.height * 0.45
         let targetSize = CGSize(width: geometry.size.width - 40, height: targetHeight)
         DispatchQueue.main.async {
             if sceneSize != targetSize {
@@ -137,11 +144,11 @@ struct ContentView: View {
     private var bottomControlsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("ÁªèÈ™å: \(gameViewModel.petStatus.xpDisplayText)")
+                Text("æ≠—È: \(gameViewModel.petStatus.xpDisplayText)")
                     .font(.headline)
                     .foregroundStyle(Color.white)
                 Spacer()
-                Text("ÊÄªÁªèÈ™å \(gameViewModel.petStatus.totalXP)")
+                Text("◊‹æ≠—È \(gameViewModel.petStatus.totalXP)")
                     .font(.caption)
                     .foregroundStyle(Color.white.opacity(0.6))
             }
@@ -153,26 +160,103 @@ struct ContentView: View {
 
             HStack(spacing: 14) {
                 Button(action: { gameViewModel.generateMockData() }) {
-                    Label("Ëé∑ÂèñÊï∞ÊçÆ", systemImage: "sparkles")
+                    Label("ªÒ»° ˝æ›", systemImage: "sparkles")
                         .font(.subheadline)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 8)
-                        .background(Color.blue.gradient)
+                        .background(Color.blue.opacity(0.9))
                         .foregroundColor(.white)
                         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                 }
 
                 Button(action: { gameViewModel.toggleAccessory(.sunglasses) }) {
-                    Text(gameViewModel.petStatus.accessories.contains(.sunglasses) ? "Êëò‰∏ãÂ¢®Èïú" : "Êà¥‰∏äÂ¢®Èïú")
+                    Text(gameViewModel.petStatus.accessories.contains(.sunglasses) ? "’™œ¬ƒ´æµ" : "¥˜…œƒ´æµ")
                         .font(.subheadline)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 8)
-                        .background(Color.purple.gradient)
+                        .background(Color.purple.opacity(0.9))
                         .foregroundColor(.white)
                         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                 }
             }
         }
+    }
+
+    private var manualTestingPanel: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("µ˜ ‘÷˙ ÷")
+                .font(.headline)
+                .foregroundStyle(Color.white)
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("◊º±∏∂»£∫\(Int(manualReadiness))")
+                    .font(.subheadline)
+                    .foregroundStyle(.white)
+                Slider(value: $manualReadiness, in: 0...100, step: 1)
+            }
+
+            Toggle("◊‘∂®“Â—µ¡∑∏∫∫… (AU)", isOn: $manualTrainingLoadEnabled)
+                .toggleStyle(SwitchToggleStyle(tint: .blue))
+                .foregroundStyle(Color.white)
+
+            if manualTrainingLoadEnabled {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("—µ¡∑∏∫∫…£∫\(Int(manualTrainingLoad))")
+                        .font(.subheadline)
+                        .foregroundStyle(.white)
+                    Slider(value: $manualTrainingLoad, in: 100...500, step: 5)
+                }
+            }
+
+            Picker("¥•∑¢ ¬º˛", selection: $selectedManualEvent) {
+                ForEach(GameViewModel.ManualEventTrigger.allCases) { event in
+                    Text(event.displayName).tag(event)
+                }
+            }
+            .pickerStyle(MenuPickerStyle())
+            .foregroundStyle(Color.white)
+
+            Text("µ±«∞∂Øª≠£∫\(gameViewModel.currentAnimation.rawValue)")
+                .font(.caption)
+                .foregroundStyle(Color.white.opacity(0.7))
+
+            HStack(spacing: 12) {
+                Button(action: applyManualScenario) {
+                    Text("”¶”√ ‰»Î")
+                        .font(.subheadline)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.green.opacity(0.85))
+                        .foregroundColor(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+
+                Button(action: gameViewModel.resetToIdleState) {
+                    Text("÷ÿ÷√≥ËŒÔ")
+                        .font(.subheadline)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.gray.opacity(0.4))
+                        .foregroundColor(.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 18)
+                .fill(Color.white.opacity(0.07))
+        )
+    }
+
+    private func applyManualScenario() {
+        let trainingValue = manualTrainingLoadEnabled ? Int(manualTrainingLoad) : nil
+        gameViewModel.applyManualInput(
+            score: Int(manualReadiness),
+            trainingLoad: trainingValue,
+            event: selectedManualEvent
+        )
+        selectedManualEvent = .none
     }
 
     private func errorBanner(_ message: String) -> some View {
@@ -186,8 +270,8 @@ struct ContentView: View {
                     .foregroundColor(.white)
                     .multilineTextAlignment(.leading)
                 Spacer(minLength: 8)
-                Button("ÂÖ≥Èó≠") {
-                    withAnimation { gameViewModel.errorMessage = nil }
+                Button("πÿ±’") {
+                    withAnimation { gameViewModel.clearErrorMessage() }
                 }
                 .font(.caption)
                 .foregroundColor(.white)
@@ -207,13 +291,13 @@ struct ContentView: View {
                     Color.black.opacity(0.45)
                         .ignoresSafeArea()
                     VStack(spacing: 12) {
-                        Text("üéâ")
+                        Text("??")
                             .font(.system(size: 48))
-                        Text("ÂçáÁ∫ßÊàêÂäü")
+                        Text("…˝º∂≥…π¶")
                             .font(.title3)
                             .fontWeight(.bold)
                             .foregroundStyle(Color.yellow)
-                        Text("Á≠âÁ∫ß \(gameViewModel.petStatus.level)")
+                        Text("µ»º∂ \(gameViewModel.petStatus.level)")
                             .font(.headline)
                             .foregroundStyle(Color.white)
                     }
