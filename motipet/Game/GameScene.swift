@@ -1,7 +1,17 @@
+import Foundation
 import SpriteKit
 
 class GameScene: SKScene {
     private var petNode: PetNode?
+    var interactionHandler: ((PetInteractionEvent) -> Void)?
+
+    private var activeTouch: UITouch?
+    private var tapCount = 0
+    private var tapDispatchWorkItem: DispatchWorkItem?
+    private var longPressWorkItem: DispatchWorkItem?
+    private var isLongPressActive = false
+    private let longPressThreshold: TimeInterval = 0.35
+    private let multiTapWindow: TimeInterval = 0.3
 
     override func didMove(to view: SKView) {
         backgroundColor = .clear
@@ -58,6 +68,75 @@ class GameScene: SKScene {
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        petNode?.playAnimation(named: "Happy", loop: false, restoreToIdle: true)
+        guard activeTouch == nil, let touch = touches.first else { return }
+        activeTouch = touch
+        isLongPressActive = false
+        cancelTapDispatch()
+        scheduleLongPressDetection()
+    }
+
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first, touch == activeTouch else { return }
+        activeTouch = nil
+        cancelLongPressDetection()
+        if isLongPressActive {
+            isLongPressActive = false
+            interactionHandler?(.longPressEnded)
+            return
+        }
+        tapCount += 1
+        scheduleTapDispatch()
+    }
+
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first, touch == activeTouch else { return }
+        activeTouch = nil
+        cancelLongPressDetection()
+        if isLongPressActive {
+            isLongPressActive = false
+            interactionHandler?(.longPressEnded)
+        }
+        tapCount = 0
+        cancelTapDispatch()
+    }
+
+    private func scheduleLongPressDetection() {
+        let workItem = DispatchWorkItem { [weak self] in
+            guard let self else { return }
+            self.isLongPressActive = true
+            self.tapCount = 0
+            self.interactionHandler?(.longPressBegan)
+        }
+        longPressWorkItem?.cancel()
+        longPressWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + longPressThreshold, execute: workItem)
+    }
+
+    private func cancelLongPressDetection() {
+        longPressWorkItem?.cancel()
+        longPressWorkItem = nil
+    }
+
+    private func scheduleTapDispatch() {
+        let workItem = DispatchWorkItem { [weak self] in
+            guard let self else { return }
+            let currentCount = self.tapCount
+            self.tapCount = 0
+            self.tapDispatchWorkItem = nil
+            guard currentCount > 0 else { return }
+            if currentCount == 1 {
+                self.interactionHandler?(.tap)
+            } else {
+                self.interactionHandler?(.rapidTap(count: currentCount))
+            }
+        }
+        tapDispatchWorkItem?.cancel()
+        tapDispatchWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + multiTapWindow, execute: workItem)
+    }
+
+    private func cancelTapDispatch() {
+        tapDispatchWorkItem?.cancel()
+        tapDispatchWorkItem = nil
     }
 }

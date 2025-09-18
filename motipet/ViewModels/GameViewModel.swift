@@ -84,6 +84,11 @@ class GameViewModel: ObservableObject {
     private var levelOverlayTimer: Timer?
     private var accessorySet: Set<AccessoryType> = []
     private var baseAnimation: PetAnimation = .idle
+    private let maxChaseTailLoops = 4
+    private let dizzyMaxDuration: TimeInterval = 10.0
+    private let dizzyCycleDuration: TimeInterval = 0.9
+    private let dizzyDurationPerLoop: TimeInterval = 1.5
+    private var longPressInteractionActive = false
 
     init() {
         setupInitialState()
@@ -138,6 +143,26 @@ class GameViewModel: ObservableObject {
         petStatus.accessories = Array(accessorySet)
     }
 
+    func handleInteraction(_ event: PetInteractionEvent) {
+        switch event {
+        case .tap:
+            longPressInteractionActive = false
+            sendManualAnimationRequest(names: ["pethead"], loopLast: false, restoreToIdle: true)
+        case .longPressBegan:
+            longPressInteractionActive = true
+            sendManualAnimationRequest(names: ["petjaw"], loopLast: true, restoreToIdle: false)
+        case .longPressEnded:
+            if longPressInteractionActive {
+                longPressInteractionActive = false
+                playBaseAnimation()
+            }
+        case .rapidTap(let count):
+            longPressInteractionActive = false
+            guard count > 0 else { return }
+            playChaseTailSequence(tapCount: count)
+        }
+    }
+
     func triggerTaskCompleted() {
         petStatus.stateReason = "完成今日任务！"
         manualAnimationRequest = ManualAnimation.hurray.request
@@ -172,6 +197,27 @@ class GameViewModel: ObservableObject {
 
     func clearErrorMessage() {
         errorMessage = nil
+    }
+
+    private func sendManualAnimationRequest(names: [String], loopLast: Bool, restoreToIdle: Bool) {
+        animationTimer?.invalidate()
+        manualAnimationRequest = ManualAnimationRequest(names: names, loopLast: loopLast, restoreToIdle: restoreToIdle)
+    }
+
+    private func playBaseAnimation() {
+        sendManualAnimationRequest(names: [baseAnimation.rawValue], loopLast: true, restoreToIdle: false)
+        currentAnimation = baseAnimation
+    }
+
+    private func playChaseTailSequence(tapCount: Int) {
+        let loops = max(1, min(maxChaseTailLoops, Int(ceil(Double(tapCount) / 2.0))))
+        var sequence = Array(repeating: "ChaseTail", count: loops)
+        let desiredDizzyDuration = min(dizzyMaxDuration, Double(loops) * dizzyDurationPerLoop)
+        let repeats = max(1, Int(round(desiredDizzyDuration / dizzyCycleDuration)))
+        if repeats > 0 {
+            sequence.append(contentsOf: Array(repeating: "dizzy", count: repeats))
+        }
+        sendManualAnimationRequest(names: sequence, loopLast: false, restoreToIdle: true)
     }
 
     private func setupInitialState() {

@@ -10,6 +10,14 @@ class PetNode: SKSpriteNode {
     private var spriteSheetData: AsepriteSpriteSheet?
     private var animationCache: [String: AnimationClip] = [:]
     private var accessoryNodes: [AccessoryType: SKSpriteNode] = [:]
+    private let timePerFrameOverrides: [String: Double] = [
+        "sleep": 0.28,
+        "lookleft": 0.18,
+        "lookright": 0.18,
+        "petjaw": 0.45,
+        "chasetail": 0.20
+    ]
+    private let minimumFrameDuration: Double = 0.05
 
     override init(texture: SKTexture?, color: UIColor, size: CGSize) {
         super.init(texture: texture, color: color, size: size)
@@ -162,12 +170,12 @@ class PetNode: SKSpriteNode {
             let texture = SKTexture(rect: rect, in: spriteSheet)
             texture.filteringMode = .nearest
             textures.append(texture)
-            frameDurations.append(max(0.05, Double(frameEntry.duration) / 1000.0))
+            frameDurations.append(max(minimumFrameDuration, Double(frameEntry.duration) / 1000.0))
         }
 
         guard !textures.isEmpty else { return nil }
         let average = frameDurations.reduce(0, +) / Double(frameDurations.count)
-        let clip = AnimationClip(textures: textures, timePerFrame: average)
+        let clip = AnimationClip(textures: textures, timePerFrame: timePerFrameOverrides[key] ?? average)
         animationCache[key] = clip
         return clip
     }

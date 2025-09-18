@@ -56,6 +56,11 @@ struct ContentView: View {
             gameViewModel.clearManualAnimationRequest()
         }
         .onAppear {
+            if gameScene.interactionHandler == nil {
+                gameScene.interactionHandler = { [weak viewModel = gameViewModel] event in
+                    viewModel?.handleInteraction(event)
+                }
+            }
             if !hasLoadedInitialData {
                 hasLoadedInitialData = true
                 gameViewModel.updateReadinessDisplay(to: Int(manualReadiness))
