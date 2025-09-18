@@ -160,7 +160,7 @@ struct ContentView: View {
                     .font(.headline)
                     .foregroundStyle(Color.white)
                 Spacer()
-                Text("总经�?\(gameViewModel.petStatus.totalXP)")
+                Text("总经验: \(gameViewModel.petStatus.totalXP)")
                     .font(.caption)
                     .foregroundStyle(Color.white.opacity(0.6))
             }

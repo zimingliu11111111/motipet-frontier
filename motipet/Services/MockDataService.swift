@@ -84,8 +84,8 @@ final class MockDataService {
     private func reason(for score: Int) -> String {
         if score >= 90 { return "昨晚睡眠质量极佳" }
         if score <= 55 { return "恢复不足，请稍作调整" }
-        if score >= 75 { return "心率变异性保持稳�? }
-        return "状态稳步提�?
+        if score >= 75 { return "心率变异性保持稳定" }
+        return "状态稳步提升"
     }
 
     private func happiness(score: Int, leveledUp: Bool) -> Int {

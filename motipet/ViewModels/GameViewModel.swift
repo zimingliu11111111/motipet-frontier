@@ -32,10 +32,10 @@ class GameViewModel: ObservableObject {
             case .relax: return "放松"
             case .grooming: return "梳理"
             case .lookAround: return "左顾右盼"
-            case .greeting: return "打招�?
+            case .greeting: return "打招呼"
             case .petHead: return "摸头"
-            case .petJaw: return "挠下�?
-            case .chaseTail: return "追尾�?
+            case .petJaw: return "挠下巴"
+            case .chaseTail: return "追尾巴"
             case .hurray: return "欢呼"
             }
         }
@@ -139,7 +139,7 @@ class GameViewModel: ObservableObject {
     }
 
     func triggerTaskCompleted() {
-        petStatus.stateReason = "完成今日任务�?
+        petStatus.stateReason = "完成今日任务！"
         manualAnimationRequest = ManualAnimation.hurray.request
     }
 
@@ -151,7 +151,7 @@ class GameViewModel: ObservableObject {
     }
 
     func triggerLevelUpEvent() {
-        let status = mockService.forceLevelUp(reason: "等级提升�?)
+        let status = mockService.forceLevelUp(reason: "等级提升！")
         petStatus = status
         petStatus.accessories = Array(accessorySet)
         lastReadinessScore = Double(status.readinessScore)
