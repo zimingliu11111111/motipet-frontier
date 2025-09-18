@@ -84,10 +84,8 @@ class GameViewModel: ObservableObject {
     private var levelOverlayTimer: Timer?
     private var accessorySet: Set<AccessoryType> = []
     private var baseAnimation: PetAnimation = .idle
-    private let maxChaseTailLoops = 4
-    private let dizzyMaxDuration: TimeInterval = 10.0
+    private let dizzyMaxDuration: TimeInterval = 5.0
     private let dizzyCycleDuration: TimeInterval = 0.9
-    private let dizzyDurationPerLoop: TimeInterval = 1.5
     private var currentLongPressTarget: PetInteractionTarget?
     private var isChaseTailPriming = false
 
@@ -158,9 +156,9 @@ class GameViewModel: ObservableObject {
                 currentLongPressTarget = nil
                 playBaseAnimation()
             }
-        case .rapidTap(let count, let isFinal):
+        case .rapidTap(let count, let duration, let isFinal):
             currentLongPressTarget = nil
-            handleRapidTap(count: count, isFinal: isFinal)
+            handleRapidTap(count: count, duration: duration, isFinal: isFinal)
         }
     }
 
@@ -225,32 +223,26 @@ class GameViewModel: ObservableObject {
         sendManualAnimationRequest(names: [name], loopLast: true, restoreToIdle: false)
     }
 
-    private func handleRapidTap(count: Int, isFinal: Bool) {
+    private func handleRapidTap(count: Int, duration: TimeInterval, isFinal: Bool) {
         guard count >= 2 else { return }
 
         if isFinal {
             isChaseTailPriming = false
-            let loops = loops(forTapCount: count)
-            runChaseTailSequence(loops: loops)
+            let clampedDuration = min(max(duration, 0), dizzyMaxDuration)
+            let desiredDuration = max(dizzyCycleDuration, clampedDuration)
+            runDizzySequence(duration: desiredDuration)
         } else if !isChaseTailPriming {
             isChaseTailPriming = true
-            sendManualAnimationRequest(names: ["ChaseTail"], loopLast: true, restoreToIdle: false)
+            sendManualAnimationRequest(names: ["turn"], loopLast: true, restoreToIdle: false)
         }
     }
 
-    private func loops(forTapCount count: Int) -> Int {
-        let computed = Int(ceil(Double(count) / 2.0))
-        return max(1, min(maxChaseTailLoops, computed))
-    }
-
-    private func runChaseTailSequence(loops: Int) {
-        let cappedLoops = max(1, min(maxChaseTailLoops, loops))
-        var sequence = Array(repeating: "ChaseTail", count: cappedLoops)
-        let desiredDizzyDuration = min(dizzyMaxDuration, Double(cappedLoops) * dizzyDurationPerLoop)
-        let repeats = max(1, Int(round(desiredDizzyDuration / dizzyCycleDuration)))
-        if repeats > 0 {
-            sequence.append(contentsOf: Array(repeating: "dizzy", count: repeats))
+    private func runDizzySequence(duration: TimeInterval) {
+        var repeats = max(1, Int(round(duration / dizzyCycleDuration)))
+        while Double(repeats) * dizzyCycleDuration > dizzyMaxDuration && repeats > 1 {
+            repeats -= 1
         }
+        let sequence = Array(repeating: "dizzy", count: repeats)
         sendManualAnimationRequest(names: sequence, loopLast: false, restoreToIdle: true)
     }
 

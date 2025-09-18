@@ -15,7 +15,8 @@ class PetNode: SKSpriteNode {
         "lookleft": 0.18,
         "lookright": 0.18,
         "petjaw": 0.45,
-        "chasetail": 0.20
+        "chasetail": 0.20,
+        "turn": 0.16
     ]
     private let minimumFrameDuration: Double = 0.05
 

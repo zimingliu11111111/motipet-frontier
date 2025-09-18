@@ -9,7 +9,8 @@ class GameScene: SKScene {
     private var activeTouchTarget: PetInteractionTarget?
     private var tapSequenceCount = 0
     private var tapSequenceTarget: PetInteractionTarget?
-    private var hasSentRapidTapPreview = false
+    private var tapSequenceStartTime: TimeInterval?
+    private var tapSequenceLastTimestamp: TimeInterval?
     private var tapDispatchWorkItem: DispatchWorkItem?
     private var longPressWorkItem: DispatchWorkItem?
     private var isLongPressActive = false
@@ -99,15 +100,18 @@ class GameScene: SKScene {
             return
         }
 
-        tapSequenceCount += 1
-        if tapSequenceCount == 1 {
+        let timestamp = ProcessInfo.processInfo.systemUptime
+        if tapSequenceCount == 0 {
+            tapSequenceStartTime = timestamp
             tapSequenceTarget = target
+        }
+        tapSequenceCount += 1
+        tapSequenceLastTimestamp = timestamp
+
+        if tapSequenceCount == 1 {
             scheduleTapFinalDispatch()
         } else {
-            if !hasSentRapidTapPreview {
-                hasSentRapidTapPreview = true
-                interactionHandler?(.rapidTap(count: tapSequenceCount, isFinal: false))
-            }
+            interactionHandler?(.rapidTap(count: tapSequenceCount, duration: tapDurationSinceStart(), isFinal: false))
             scheduleTapFinalDispatch()
         }
     }
@@ -155,6 +159,7 @@ class GameScene: SKScene {
     private func deliverTapSequence() {
         let count = tapSequenceCount
         let target = tapSequenceTarget
+        let duration = tapDurationSinceStart()
         tapDispatchWorkItem = nil
         resetTapState()
 
@@ -162,7 +167,7 @@ class GameScene: SKScene {
         if count == 1, let target {
             interactionHandler?(.tap(target: target))
         } else {
-            interactionHandler?(.rapidTap(count: count, isFinal: true))
+            interactionHandler?(.rapidTap(count: count, duration: duration, isFinal: true))
         }
     }
 
@@ -177,7 +182,14 @@ class GameScene: SKScene {
     private func resetTapState() {
         tapSequenceCount = 0
         tapSequenceTarget = nil
-        hasSentRapidTapPreview = false
+        tapSequenceStartTime = nil
+        tapSequenceLastTimestamp = nil
+    }
+
+    private func tapDurationSinceStart() -> TimeInterval {
+        guard let start = tapSequenceStartTime else { return 0 }
+        let end = tapSequenceLastTimestamp ?? start
+        return max(0, end - start)
     }
 
     private func interactionTarget(for touch: UITouch) -> PetInteractionTarget? {
