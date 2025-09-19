@@ -70,8 +70,9 @@ class GameScene: SKScene {
 
     private func configurePetNode() {
         guard petNode == nil else { return }
-        let size = idealPetSize() * 0.6
-        let node = PetNode(texture: nil, color: .clear, size: size)
+        let ideal = idealPetSize()
+        let scaledSize = CGSize(width: ideal.width * 0.6, height: ideal.height * 0.6)
+        let node = PetNode(texture: nil, color: .clear, size: scaledSize)
         let ground = groundAreaInScene()
         let cx = ground.midX
         let cy = ground.minY + node.size.height*0.5
@@ -122,7 +123,8 @@ class GameScene: SKScene {
         }
     }
 
-    private func playLightIdleAnimation() {\n        let choice = Double.random(in: 0..<1)
+    private func playLightIdleAnimation() {
+        let choice = Double.random(in: 0..<1)
         if choice < 0.25 {
             playAnimation(named: "sleep", loop: false, restoreToIdle: true)
             scheduleIdleTick(after: Double.random(in: 60.0...80.0))
@@ -372,14 +374,3 @@ class GameScene: SKScene {
         return point.y >= boundary ? .head : .body
     }
 }
-<<<<<<< HEAD
-=======
-
-
-
-
-
-
->>>>>>> 9138e27 (tune background, ground bounds, idle cadence, walk2)
-
-
