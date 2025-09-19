@@ -6,7 +6,7 @@ class GameScene: SKScene {
     private var backgroundNode: SKSpriteNode?
     var backgroundImageName: String = "RoomBackground"
     // Normalized ground rect within scene (0..1 coords), y from bottom
-    var groundAreaNormalized: CGRect = CGRect(x: 0.08, y: 0.05, width: 0.84, height: 0.28)
+    var groundAreaNormalized: CGRect = CGRect(x: 0.0, y: 0.05, width: 1.0, height: 0.26)
     private var idleLoopEnabled: Bool = true
     private let idleLoopActionKey = "idle_loop"
     var interactionHandler: ((PetInteractionEvent) -> Void)?
@@ -70,7 +70,7 @@ class GameScene: SKScene {
 
     private func configurePetNode() {
         guard petNode == nil else { return }
-        let size = idealPetSize()
+        let size = idealPetSize() * 0.6
         let node = PetNode(texture: nil, color: .clear, size: size)
         let ground = groundAreaInScene()
         let cx = ground.midX
@@ -114,7 +114,7 @@ class GameScene: SKScene {
         guard idleLoopEnabled else { return }
         let roll = Double.random(in: 0..<1)
         if roll < 0.45 {
-            scheduleIdleTick(after: Double.random(in: 1.5...3.0))
+            scheduleIdleTick(after: Double.random(in: 60.0...80.0))
         } else if roll < 0.8 {
             playLightIdleAnimation()
         } else {
@@ -122,20 +122,19 @@ class GameScene: SKScene {
         }
     }
 
-    private func playLightIdleAnimation() {
-        let choice = Double.random(in: 0..<1)
+    private func playLightIdleAnimation() {\n        let choice = Double.random(in: 0..<1)
         if choice < 0.25 {
             playAnimation(named: "sleep", loop: false, restoreToIdle: true)
-            scheduleIdleTick(after: Double.random(in: 2.0...3.0))
+            scheduleIdleTick(after: Double.random(in: 60.0...80.0))
         } else if choice < 0.55 {
             playAnimation(named: "relax", loop: false, restoreToIdle: true)
-            scheduleIdleTick(after: Double.random(in: 1.2...1.8))
+            scheduleIdleTick(after: Double.random(in: 60.0...80.0))
         } else if choice < 0.85 {
             playAnimationSequence(["lookleft", "lookright"], loopLast: false, restoreToIdle: true)
-            scheduleIdleTick(after: Double.random(in: 1.2...1.8))
+            scheduleIdleTick(after: Double.random(in: 60.0...80.0))
         } else {
             playAnimation(named: "grooming", loop: false, restoreToIdle: true)
-            scheduleIdleTick(after: Double.random(in: 1.5...2.3))
+            scheduleIdleTick(after: Double.random(in: 60.0...80.0))
         }
     }
 
@@ -373,3 +372,13 @@ class GameScene: SKScene {
         return point.y >= boundary ? .head : .body
     }
 }
+<<<<<<< HEAD
+=======
+
+
+
+
+
+
+>>>>>>> 9138e27 (tune background, ground bounds, idle cadence, walk2)
+
