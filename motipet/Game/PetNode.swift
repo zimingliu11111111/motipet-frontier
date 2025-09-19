@@ -116,28 +116,36 @@ class PetNode: SKSpriteNode {
                   baselineY: CGFloat,
                   duration: TimeInterval,
                   movingRight: Bool,
+                  key: String,
                   completion: @escaping () -> Void) {
-        let baseScale = xScale == 0 ? 1 : abs(xScale)
-        xScale = baseScale * (movingRight ? 1 : -1)
+        let originalScaleX = xScale
+        let originalScaleY = yScale
+        let facingScale: CGFloat
+        let absoluteScale = abs(originalScaleX == 0 ? 1 : originalScaleX)
+        facingScale = movingRight ? -absoluteScale : absoluteScale
+        xScale = facingScale
 
-        removeAction(forKey: "patrol_move")
+        removeAction(forKey: key)
         removeAction(forKey: "pet_animation")
 
         guard let clip = walkClip(forMovingRight: movingRight), !clip.textures.isEmpty else {
             let move = SKAction.move(to: CGPoint(x: targetX, y: baselineY), duration: max(0.2, duration))
             move.timingMode = .easeInEaseOut
             let finish = SKAction.run { [weak self] in
-                self?.playAnimation(.idle)
+                guard let self else { return }
+                self.position = CGPoint(x: targetX, y: baselineY)
+                self.xScale = originalScaleX
+                self.yScale = originalScaleY
+                self.playAnimation(.idle)
                 completion()
             }
-            run(SKAction.sequence([move, finish]), withKey: "patrol_move")
+            run(SKAction.sequence([move, finish]), withKey: key)
             return
         }
 
         let totalDuration = max(0.2, duration)
-        let cycleDuration = clip.timePerFrame * Double(clip.textures.count)
-        let loops = max(1, Int(ceil(totalDuration / max(cycleDuration, 0.001))))
-        let totalSteps = loops * clip.textures.count
+        let cycleDuration = max(clip.timePerFrame * Double(clip.textures.count), 0.001)
+        let totalSteps = max(1, Int(ceil(totalDuration / cycleDuration)) * clip.textures.count)
         let stepDuration = max(0.05, totalDuration / Double(totalSteps))
 
         let startX = position.x
@@ -155,18 +163,19 @@ class PetNode: SKSpriteNode {
             let changeTexture = SKAction.setTexture(texture, resize: false)
             let move = SKAction.moveBy(x: stepX, y: stepY, duration: stepDuration)
             move.timingMode = .linear
-            let group = SKAction.group([changeTexture, move])
-            actions.append(group)
+            actions.append(SKAction.group([changeTexture, move]))
         }
 
         let finalize = SKAction.run { [weak self] in
             guard let self else { return }
             self.position = CGPoint(x: targetX, y: baselineY)
+            self.xScale = originalScaleX
+            self.yScale = originalScaleY
             self.playAnimation(.idle)
             completion()
         }
 
-        run(SKAction.sequence(actions + [finalize]), withKey: "patrol_move")
+        run(SKAction.sequence(actions + [finalize]), withKey: key)
     }
 
     func addAccessory(_ accessory: AccessoryType) {
