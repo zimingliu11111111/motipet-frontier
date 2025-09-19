@@ -9,6 +9,11 @@ class GameScene: SKScene {
     var groundAreaNormalized: CGRect = CGRect(x: 0.0, y: 0.05, width: 1.0, height: 0.26)
     private var idleLoopEnabled: Bool = true
     private let idleLoopActionKey = "idle_loop"
+    private let idleResumeActionKey = "idle_resume"
+    private let dragFollowActionKey = "drag_follow"
+    private let dragResumeDelay: TimeInterval = 4.0
+    private let idleDelayRange: ClosedRange<TimeInterval> = 60.0...90.0
+    private let patrolPauseRange: ClosedRange<TimeInterval> = 60.0...90.0
     var interactionHandler: ((PetInteractionEvent) -> Void)?
 
     private var activeTouch: UITouch?
@@ -24,6 +29,7 @@ class GameScene: SKScene {
     private let multiTapWindow: TimeInterval = 0.3
     private let headBoundaryRatio: CGFloat = 0.1
     private var isDragging: Bool = false
+    private var dragBaselineY: CGFloat?
 
     override func didMove(to view: SKView) {
         backgroundColor = .clear
@@ -100,22 +106,43 @@ class GameScene: SKScene {
     }
 
     private func startIdleLoop() {
-        guard idleLoopEnabled else { return }
-        scheduleIdleTick(after: 0.6)
+        idleLoopEnabled = true
+        startPatrolIfNeeded()
+        scheduleIdleTick()
     }
 
-    private func scheduleIdleTick(after delay: TimeInterval) {
+    private func randomIdleDelay() -> TimeInterval {
+        Double.random(in: idleDelayRange)
+    }
+
+    private func scheduleIdleTick(after delay: TimeInterval? = nil) {
+        guard idleLoopEnabled else { return }
         removeAction(forKey: idleLoopActionKey)
-        let wait = SKAction.wait(forDuration: max(0.1, delay))
+        let waitDuration = max(0.1, delay ?? randomIdleDelay())
+        let wait = SKAction.wait(forDuration: waitDuration)
         let tick = SKAction.run { [weak self] in self?.idleTick() }
         run(SKAction.sequence([wait, tick]), withKey: idleLoopActionKey)
+    }
+
+    private func resumeIdleLoop(after delay: TimeInterval) {
+        idleLoopEnabled = false
+        removeAction(forKey: idleLoopActionKey)
+        removeAction(forKey: idleResumeActionKey)
+        let wait = SKAction.wait(forDuration: max(0.0, delay))
+        let resume = SKAction.run { [weak self] in
+            guard let self else { return }
+            self.idleLoopEnabled = true
+            self.startPatrolIfNeeded()
+            self.scheduleIdleTick()
+        }
+        run(SKAction.sequence([wait, resume]), withKey: idleResumeActionKey)
     }
 
     private func idleTick() {
         guard idleLoopEnabled else { return }
         let roll = Double.random(in: 0..<1)
         if roll < 0.45 {
-            scheduleIdleTick(after: Double.random(in: 60.0...80.0))
+            scheduleIdleTick(after: randomIdleDelay())
         } else if roll < 0.8 {
             playLightIdleAnimation()
         } else {
@@ -127,16 +154,16 @@ class GameScene: SKScene {
         let choice = Double.random(in: 0..<1)
         if choice < 0.25 {
             playAnimation(named: "sleep", loop: false, restoreToIdle: true)
-            scheduleIdleTick(after: Double.random(in: 60.0...80.0))
+            scheduleIdleTick(after: randomIdleDelay())
         } else if choice < 0.55 {
             playAnimation(named: "relax", loop: false, restoreToIdle: true)
-            scheduleIdleTick(after: Double.random(in: 60.0...80.0))
+            scheduleIdleTick(after: randomIdleDelay())
         } else if choice < 0.85 {
             playAnimationSequence(["lookleft", "lookright"], loopLast: false, restoreToIdle: true)
-            scheduleIdleTick(after: Double.random(in: 60.0...80.0))
+            scheduleIdleTick(after: randomIdleDelay())
         } else {
             playAnimation(named: "grooming", loop: false, restoreToIdle: true)
-            scheduleIdleTick(after: Double.random(in: 60.0...80.0))
+            scheduleIdleTick(after: randomIdleDelay())
         }
     }
 
@@ -145,26 +172,32 @@ class GameScene: SKScene {
 
     private func startPatrolIfNeeded() {
         guard patrolEnabled, !isPatrolScheduled else { return }
-        isPatrolScheduled = true
-        scheduleNextPatrolStep(after: 0.5)
+        scheduleNextPatrolStep(after: randomPatrolDelay())
     }
 
     private func stopPatrol() {
         isPatrolScheduled = false
+        removeAction(forKey: "patrol_schedule")
         petNode?.removeAction(forKey: "patrol_move")
     }
 
-    private func scheduleNextPatrolStep(after delay: TimeInterval) {
+    private func randomPatrolDelay() -> TimeInterval {
+        Double.random(in: patrolPauseRange)
+    }
+
+    private func scheduleNextPatrolStep(after delay: TimeInterval? = nil) {
         guard patrolEnabled else { return }
-        let wait = SKAction.wait(forDuration: max(0.1, delay))
+        isPatrolScheduled = true
+        let wait = SKAction.wait(forDuration: max(0.1, delay ?? randomPatrolDelay()))
         let plan = SKAction.run { [weak self] in self?.performPatrolStep() }
         run(SKAction.sequence([wait, plan]), withKey: "patrol_schedule")
     }
 
     private func performPatrolStep(singleShot: Bool = false) {
         guard patrolEnabled, let pet = petNode else { return }
+        isPatrolScheduled = false
         let ground = groundAreaInScene()
-        let margin = max(8.0, Double(pet.size.width) * 0.3)
+        let margin = max(8.0, Double(pet.size.width) * 0.15)
         let minX = ground.minX + CGFloat(margin)
         let maxX = ground.maxX - CGFloat(margin)
         guard maxX > minX else { return }
@@ -173,18 +206,19 @@ class GameScene: SKScene {
         let distance = abs(targetX - pet.position.x)
         let speed = max(60.0, min(140.0, Double(self.size.width) * 0.12))
         let duration = TimeInterval(distance / CGFloat(speed))
-        pet.playAnimation(named: "walk", loop: true, restoreToIdle: false)
-        let move = SKAction.move(to: CGPoint(x: targetX, y: y), duration: max(0.2, duration))
-        let arrive = SKAction.run { [weak self] in
+        let travelDuration = max(0.3, duration)
+        let movingRight = targetX >= pet.position.x
+        pet.playWalk(to: targetX,
+                     baselineY: y,
+                     duration: travelDuration,
+                     movingRight: movingRight) { [weak self] in
+            guard let self else { return }
             if singleShot {
-                self?.petNode?.removeAction(forKey: "patrol_move")
-                self?.scheduleIdleTick(after: Double.random(in: 1.0...2.0))
+                self.scheduleIdleTick(after: self.randomIdleDelay())
             } else {
-                self?.playRandomIdleBreak()
+                self.scheduleNextPatrolStep(after: self.randomPatrolDelay())
             }
         }
-        pet.removeAction(forKey: "patrol_move")
-        pet.run(SKAction.sequence([move, arrive]), withKey: "patrol_move")
     }
 
     private func playRandomIdleBreak() {
@@ -196,7 +230,7 @@ class GameScene: SKScene {
         } else {
             playAnimation(named: "grooming", loop: false, restoreToIdle: true)
         }
-        scheduleNextPatrolStep(after: Double.random(in: 1.0...2.0))
+        scheduleNextPatrolStep(after: randomPatrolDelay())
     }
 
     func updatePetAccessories(_ accessories: [AccessoryType]) {
@@ -228,13 +262,17 @@ class GameScene: SKScene {
         guard let touch = touches.first, touch == activeTouch else { return }
         if isDragging, let pet = petNode {
             let ground = groundAreaInScene()
-            let margin = max(8.0, Double(pet.size.width) * 0.3)
+            let margin = max(8.0, Double(pet.size.width) * 0.15)
             let minX = ground.minX + CGFloat(margin)
             let maxX = ground.maxX - CGFloat(margin)
-            var x = touch.location(in: self).x
-            x = min(max(x, minX), maxX)
-            let y = ground.minY + pet.size.height * 0.5
-            pet.position = CGPoint(x: x, y: y)
+            let baseline = dragBaselineY ?? (ground.minY + pet.size.height * 0.5)
+            let location = touch.location(in: self)
+            let clampedX = min(max(location.x, minX), maxX)
+            let targetPoint = CGPoint(x: clampedX, y: baseline)
+            pet.removeAction(forKey: dragFollowActionKey)
+            let move = SKAction.move(to: targetPoint, duration: 0.08)
+            move.timingMode = .easeOut
+            pet.run(move, withKey: dragFollowActionKey)
         }
     }
 
@@ -248,8 +286,10 @@ class GameScene: SKScene {
         if isLongPressActive {
             isLongPressActive = false
             isDragging = false
-            idleLoopEnabled = true
-            scheduleIdleTick(after: 1.0)
+            petNode?.removeAction(forKey: dragFollowActionKey)
+            if let target { interactionHandler?(.longPressEnded(target: target)) }
+            dragBaselineY = nil
+            resumeIdleLoop(after: dragResumeDelay)
             resetTapState()
             return
         }
@@ -283,8 +323,10 @@ class GameScene: SKScene {
         cancelLongPressDetection()
         if isLongPressActive {
             isDragging = false
-            idleLoopEnabled = true
-            scheduleIdleTick(after: 1.0)
+            petNode?.removeAction(forKey: dragFollowActionKey)
+            if let target { interactionHandler?(.longPressEnded(target: target)) }
+            dragBaselineY = nil
+            resumeIdleLoop(after: dragResumeDelay)
         }
         isLongPressActive = false
         cancelTapDispatch(resetState: true)
@@ -298,8 +340,20 @@ class GameScene: SKScene {
             self.tapSequenceCount = 0
             self.cancelTapDispatch(resetState: true)
             self.idleLoopEnabled = false
-            self.removeAction(forKey: "idle_loop")
-            self.petNode?.removeAction(forKey: "patrol_move")
+            self.removeAction(forKey: self.idleLoopActionKey)
+            self.removeAction(forKey: self.idleResumeActionKey)
+            self.stopPatrol()
+            if let pet = self.petNode {
+                let ground = self.groundAreaInScene()
+                let baseline = ground.minY + pet.size.height * 0.5
+                self.dragBaselineY = baseline
+                pet.position.y = baseline
+            } else {
+                self.dragBaselineY = nil
+            }
+            self.petNode?.removeAction(forKey: self.dragFollowActionKey)
+            self.petNode?.playAnimation(.idle)
+            self.interactionHandler?(.longPressBegan(target: target))
         }
         longPressWorkItem?.cancel()
         longPressWorkItem = workItem
