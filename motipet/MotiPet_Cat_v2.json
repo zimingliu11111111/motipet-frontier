@@ -2045,7 +2045,7 @@
    {
     "name": "tired",
     "from": 5,
-    "to": 6,
+    "to": 15,
     "direction": "forward",
     "color": "#000000ff"
    },
@@ -2147,6 +2147,13 @@
     "name": "walk",
     "from": 94,
     "to": 95,
+    "direction": "forward",
+    "color": "#000000ff"
+   },
+   {
+    "name": "tired_soft",
+    "from": 5,
+    "to": 6,
     "direction": "forward",
     "color": "#000000ff"
    }

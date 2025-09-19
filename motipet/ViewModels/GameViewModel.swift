@@ -119,7 +119,7 @@ class GameViewModel: ObservableObject {
             currentAnimation = newBase
             switch newBase {
             case .tired:
-                manualAnimationRequest = ManualAnimation.tired.request
+                manualAnimationRequest = ManualAnimationRequest(names: ["tired_soft"], loopLast: true, restoreToIdle: false)
             default:
                 manualAnimationRequest = ManualAnimation.idle.request
             }
