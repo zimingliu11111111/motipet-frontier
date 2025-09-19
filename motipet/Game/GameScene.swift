@@ -94,7 +94,11 @@ class GameScene: SKScene {
         petNode.position = CGPoint(x: frame.midX, y: frame.midY)
     }
 
-    func updatePetAnimation(_ animation: PetAnimation) {\n        petNode?.playAnimation(animation)\n    }\n\n    private func startIdleLoop() {
+    func updatePetAnimation(_ animation: PetAnimation) {
+        petNode?.playAnimation(animation)
+    }
+
+    private func startIdleLoop() {
         guard idleLoopEnabled else { return }
         scheduleIdleTick(after: 0.6)
     }
@@ -102,8 +106,8 @@ class GameScene: SKScene {
     private func scheduleIdleTick(after delay: TimeInterval) {
         removeAction(forKey: idleLoopActionKey)
         let wait = SKAction.wait(forDuration: max(0.1, delay))
-        let run = SKAction.run { [weak self] in self?.idleTick() }
-        run(SKAction.sequence([wait, run]), withKey: idleLoopActionKey)
+        let tick = SKAction.run { [weak self] in self?.idleTick() }
+        run(SKAction.sequence([wait, tick]), withKey: idleLoopActionKey)
     }
 
     private func idleTick() {
@@ -369,4 +373,3 @@ class GameScene: SKScene {
         return point.y >= boundary ? .head : .body
     }
 }
-

@@ -245,6 +245,21 @@ private extension ContentView {
         )
     }
 
+    private var animationGrid: some View {
+        LazyVGrid(columns: animationColumns, spacing: 12) {
+            ForEach(GameViewModel.ManualAnimation.allCases) { animation in
+                Button(animation.displayName) {
+                    gameViewModel.playManualAnimation(animation)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background(Color.white.opacity(0.08))
+                .foregroundColor(.white)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+        }
+    }
+
     func errorBanner(_ message: String) -> some View {
         VStack {
             Spacer()
