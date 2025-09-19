@@ -2152,8 +2152,8 @@
    },
    {
     "name": "tired_soft",
-    "from": 5,
-    "to": 6,
+    "from": 7,
+    "to": 11,
     "direction": "forward",
     "color": "#000000ff"
    }
