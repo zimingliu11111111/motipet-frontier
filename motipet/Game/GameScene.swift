@@ -382,3 +382,4 @@ class GameScene: SKScene {
 
 >>>>>>> 9138e27 (tune background, ground bounds, idle cadence, walk2)
 
+
