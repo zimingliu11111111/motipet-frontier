@@ -112,6 +112,18 @@ class GameViewModel: ObservableObject {
         lastReadinessScore = Double(clamped)
         petStatus.readinessScore = clamped
         petStatus.readinessDiagnosis = diagnosis(for: clamped)
+
+        let newBase: PetAnimation = clamped < 45 ? .tired : .idle
+        if newBase != baseAnimation {
+            baseAnimation = newBase
+            currentAnimation = newBase
+            switch newBase {
+            case .tired:
+                manualAnimationRequest = ManualAnimation.tired.request
+            default:
+                manualAnimationRequest = ManualAnimation.idle.request
+            }
+        }
     }
 
     func playManualAnimation(_ animation: ManualAnimation) {
