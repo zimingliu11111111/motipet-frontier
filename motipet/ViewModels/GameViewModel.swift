@@ -73,7 +73,12 @@ class GameViewModel: ObservableObject {
     @Published var showLevelUpAnimation = false
     @Published var lastReadinessScore: Double = 80.0
     @Published var errorMessage: String?
+
     @Published var manualAnimationRequest: ManualAnimationRequest?
+    @Published var latestHRVScore: Double = 72
+    @Published var latestSleepScore: Double = 88
+    @Published var dailyStepCount: Int = 5400
+
 
     @Published private(set) var isLoading: Bool = false
 

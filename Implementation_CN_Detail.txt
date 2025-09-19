@@ -1,0 +1,170 @@
+﻿实施方案（前端 × 后端 × 数据流）
+=================================
+
+目录
+----
+1. 互动节奏（手动触发层）
+2. Idle 随机器
+3. 状态机 + 就绪度后端对接
+4. 日夜时间线
+5. 成就 / 事件总线
+6. 每日任务系统
+7. 主题 / 装扮资源与数据模型
+8. 开发与联调流程建议
+9. 移动端布局（草案）
+10. 想法随记
+
+--------------------------------------------
+1. 互动节奏（手动触发层）
+--------------------------------------------
+**前端职责**
+- SpriteKit 侧：`GameScene` 负责触摸解析（头/身体点击、拖拽、连点）；`PetNode` 管理动画 clip 缓存。
+- ViewModel：维护交互状态（拖拽中、连点计数、强制状态），通过 `manualAnimationRequest` 向场景派发动画。
+- 交互规则：
+  - 点击头部：播放 `pethead`。
+  - 点击身体：播放 `petjaw`。
+  - 长按改为拖拽：进入拖拽模式，宠物跟随手指移动，限制在可巡游的地面区域内；松手后恢复巡游/Idle 流程。
+  - 快速连点：触发实时转圈 (`turn`) → 松手后按持续时间播放 `dizzy`（≤5s）。
+- 验证：调试面板和触摸操作需要覆盖全部动作，并记录节奏参数到文档。
+
+**后端关联**
+- 该层纯本地逻辑，无需后端交互。
+
+--------------------------------------------
+2. Idle 随机器
+--------------------------------------------
+**前端实现**
+- IdleRandomiser 管理轻量动作与巡游：
+  1. 每 10–15 秒 roll 一次，若无强制状态则选择“巡游”或“原地动作”。
+  2. 巡游模式：宠物在背景地面可活动区域内自由移动（沿地毯/地板范围），移动时循环播放 `walk`，到达随机落点后停顿 1–2 秒，再随机衔接 `idle`/`relax`/`lookaround` 等动作。
+  3. 原地动作：按权重播放 `idle`/`relax`/`lookaround`/`grooming` 等，并设置每个动作的冷却（示例 idle 30%、relax 35%、lookaround 20%、grooming 10%、最小冷却 30s）。
+  4. 夜间或强制状态（sleep/tired/hurray）时暂停巡游，改播对应动画。
+- 手动面板触发动作或拖拽结束后，短暂暂停随机器 3–5 秒，避免冲突。
+
+**后端关联**
+- 无需后端调用。
+
+--------------------------------------------
+3. 状态机 + 就绪度后端对接
+--------------------------------------------
+**总体思路**
+- 状态机维护“基础状态”（Idle/巡游）与“覆盖状态”（sleep/tired/happy/hurray 等）。
+- 就绪度（readiness）决定基础心情与经验奖励。
+
+**前端流程**
+1. 收集训练、Hooper、journal、健康数据；或等待 HealthKit 自动同步。
+2. `POST /readiness/from-healthkit`：
+   ```json
+   {
+     "user_id": "u001",
+     "date": "2025-09-20",
+     "previous_state_probs": {...上一日缓存...},
+     "training_load": "高",
+     "recent_training_loads": [...],
+     "journal": {"meditation_done_today": true},
+     "hooper": {"fatigue":3,"soreness":3,"stress":2,"sleep":4},
+     "daily_au": 300
+   }
+   ```
+3. 响应字段：`final_readiness_score`、`final_diagnosis`、`next_previous_state_probs`、`final_posterior_probs` 等。
+4. 缓存 `next_previous_state_probs`（供次日提交），并根据 `final_diagnosis` 调整状态机：
+   - Peak/Well-adapted → energetic/happy。
+   - FOR → normal。
+   - Acute Fatigue/NFOR/OTS → tired/sleepy。
+5. 根据 readiness 发放经验值或奖励（例如 ≥80 +5 XP）。
+
+**后端实现要点**
+- FastAPI (`api/main.py`) 已集成计算流程：
+  - 从 `user_daily` 读取/写入日记录。
+  - 若缺基线，调用 Baseline 服务补齐。
+  - 使用 `readiness.service.compute_readiness_from_payload` 计算 prior/posterior。
+- 响应体即为前端所需数据。
+
+--------------------------------------------
+4. 日夜时间线
+--------------------------------------------
+**规则**
+- 22:00–23:00：进入夜间困倦（基础动作偏 `tired`）。
+- ≥23:00：强制 `sleep`，交互可唤醒约 60 秒，倒计时结束后恢复 `sleep`。
+- 07:00：根据 readiness 分数触发晨间动画（≥75 → `happy`，<50 → `tired`）。
+- 18:00 开始增加疲劳偏好：IdleRandomiser 提高 `relax`/`tired` 权重。
+- 交互唤醒、任务完成等事件需要与时间逻辑互锁，避免状态冲突。
+
+**实现建议**
+- 使用设备本地时间或后端 `/time/now`（可选）校准。
+- 夜间唤醒事件可追加 `/pet/log-interaction` 记录，便于分析。
+
+--------------------------------------------
+5. 成就 / 事件总线
+--------------------------------------------
+**目标**：统一处理任务完成、升级、装扮解锁、readiness 里程碑等事件。
+
+**前端**
+- 定义 `GameEvent`（`taskCompleted`, `levelUp`, `accessoryUnlocked`, `readinessMilestone`, `missionCompleted` 等），统一由 `handleEvent(_:)` 分发。
+- 事件处理流程：播放动画 → 调整 XP/等级/装扮 → 上报后端。
+
+**后端**
+- 新增 `pet_event_log` 表：`id`, `user_id`, `event_type`, `payload_json`, `created_at`。
+- API：`POST /pet/events`，写入日志并按需返回奖励。
+
+--------------------------------------------
+6. 每日任务系统
+--------------------------------------------
+**逻辑**
+- 每日生成 1 个任务，依据 readiness 选择类型。
+- readiness 低 → 恢复类任务（正念 1 分钟、早点睡等），完成后清除疲惫。
+
+**后端**
+- 表 `daily_missions`：`user_id`, `date`, `mission_id`, `mission_type`, `description`, `duration_seconds`, `readiness_threshold`, `status`, `completed_at`, `recovery_effect`。
+- 任务生成：在 readiness 计算后根据分数写入/更新任务。
+- 完成接口 `POST /missions/complete`：更新状态，如 `recovery_effect.clearFatigue = true` 则返回并在 `user_daily` 标记。
+
+**前端**
+- `DailyMissionManager` 拉取 `/missions/today`，更新 UI。
+- 完成任务后触发事件总线 `missionCompleted`，播放奖励动画并清除疲惫状态。
+
+--------------------------------------------
+7. 主题 / 装扮资源与数据模型
+--------------------------------------------
+**配置结构**
+- `SceneTheme`: 背景图、地面 hitbox、家具 slot、环境音、房间装饰列表。
+- `CharacterSkin`: spriteSheet 名称、动画标签（idle/walk/turn/...）、配套附件。
+- `AccessorySet`: 头饰、身体饰品等，可叠加到角色节点。
+
+**资源切换**
+- SpriteKit 场景初始化时读取当前主题和皮肤，动态加载背景、角色帧、装饰节点。
+- 预留房间装扮 slot（例如地毯、墙面、窗户挂件等），后续根据主题填充。
+- 背景/角色/装扮支持热切换：更新配置后刷新节点即可。
+
+**数据库建议**
+- 现有表：`user_daily`, `user_models`, `user_baselines`。
+- 新增/变更：
+  1. `user_daily`：加 `manual_clear_fatigue`、`xp_awarded`。
+  2. `daily_missions`（见第 6 节）。
+  3. `pet_event_log`（见第 5 节）。
+  4. 可选 `user_themes`：保存当前主题/背景/皮肤/家具配置。
+
+--------------------------------------------
+8. 开发与联调流程建议
+--------------------------------------------
+1. **接口约定**：整理 `/readiness/from-healthkit`、`/missions/today`、`/missions/complete`、`/pet/events` 请求/响应样例，写入 README/Swagger。
+2. **Mock 阶段**：前端先用 stub 数据模拟 readiness、任务与事件；后端本地 FastAPI + SQLite 自测。
+3. **联调阶段**：配置 `.env`（DATABASE_URL、BASELINE_SERVICE_URL），跑通“拉 readiness → 生成任务 → 完成任务 → 事件上报”。
+4. **监控与回归**：记录 readiness 调用耗时、任务生成率；定期清理 mission/event 日志；可加报警提醒缺失数据。
+
+--------------------------------------------
+9. 移动端布局（草案）
+--------------------------------------------
+**布局结构**
+- 顶部指标区：三个圆形指标（准备度、HRV、睡眠分数），同时展示角色等级与经验条。
+- 中部角色区：SpriteKit 场景，加载当前主题背景；宠物在地面范围内巡游/互动，需要足够留白适配不同屏幕比例。
+- 底部提示区：一行提醒文案（如“早点睡让小猫恢复精神，升级更快”），根据状态/任务动态更新。
+
+**数据接入**
+- 指标区：readiness API 提供分数/诊断；睡眠/HRV 可来自 HealthKit；等级与经验条由前端本地状态维护。
+- 提醒文案：可依据每日任务状态、夜间规则或 readiness 结果动态生成。
+
+--------------------------------------------
+10. 想法随记
+--------------------------------------------
+- 

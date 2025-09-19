@@ -1,65 +1,64 @@
-# 动画/状态开发路线图
+# Animation & State Roadmap
 
-## 1. 互动节奏定型（当前进行）
-- **目标**：所有手动触发（点头、摸下巴、快速连击追尾）在调试面板中体验稳定、节奏自然。
-- **现状**：turn/dizzy、head/body 长按已调好，仍需排查长按偶尔回 idle 的问题。
-- **后续动作**：
-  1. 记录各手势节奏参数（timePerFrame、最大循环时长等）。
-  2. 修复长按回 idle 的竞态（排查 ViewModel 对 manualAnimationRequest 的覆盖）。
-  3. 在 PRD 或 README 记录互动节奏表。
+## 1. Interaction polish (current focus)
+- Goal: head/body taps, long presses, and rapid chase-tail feel consistent in the debug panel.
+- Status: turn/dizzy pacing and region detection are in; long press will be repurposed to drag, legacy jaw long-press to be retired.
+- Next steps:
+  1. Log timing parameters (timePerFrame, max loop duration, cooldowns).
+  2. Swap long-press handling for drag-to-move; keep tap head/body interactions.
+  3. Document the final gesture timings in PRD/README.
 
-## 2. Idle 随机行为
-- **目标**：待机状态下自动轮播 idle / relax / walk 等轻量动作，保证宠物在长时间静置时不呆滞。
-- **计划**：
-  1. 确认参与动作：`idle` (基础呼吸)、`relax` (轻晃)、`walk`（明天补帧）、可选 `lookaround`。
-  2. 设计权重+冷却：例如 30% idle、40% relax、20% lookaround、10% walk；同一动作触发后设最小间隔 30s。
-  3. ViewModel 增加一个 IdleRandomizer，定时器驱动（例如每 10-15 秒 roll 一次），通过 `manualAnimationRequest` 播放。
-  4. 手动面板和自动逻辑共用统一通道，避免冲突。
+## 2. Idle randomiser
+- Goal: cycle light animations (idle, relax, walk, look around) while the pet is idle for long periods.
+- Upcoming additions: patrol across full ground area, drag-to-move interaction.
+- Plan:
+  1. Finalise the action pool: idle (breathing), relax (sway), walk (frames coming tomorrow), optional lookaround.
+  2. Define weights and cooldowns, e.g. idle 30%, relax 40%, lookaround 20%, walk 10%, 30 s minimum cooldown per clip.
+  3. Add an IdleRandomiser in the ViewModel; trigger every 10-15 s and publish via manualAnimationRequest.
+  4. Ensure the manual panel and automation share the same dispatch path so they do not clash.
+  5. Add a patrol behavior: free-walk across the ground area of the background, pause at random spots, then blend into other idle clips.
 
-## 3. 状态机回接真实数据
-- **目标**：根据准备度、时段、外部事件自动切换主状态（happy / tired / sleep 等）。
-- **关键逻辑设想**：
-  - 准备度 < 50 → tired；夜间 23:00 后或手动设为睡眠 → sleep。
-  - 强制状态优先级：`sleep > tired > idle/随机`，播完后回到 idle 系统。
-  - 随机低频事件（grooming、lookleft/right）设冷却，避免频繁打断。
-  - 手动触发（turn/dizzy、头部/下巴）通过同一事件管线，与状态机互锁。
-- **实施步骤**：
-  1. 抽象 StateController，维护当前状态与优先级。
-  2. 以 mock 数据驱动测试（调试面板 slider & 按钮）。
-  3. 接入真实 API 更新，确保状态切换平滑。
+## 3. Data-driven state machine
+- Goal: switch the base state (happy / tired / sleep) based on readiness, time of day, and external events.
+- Ideas:
+  - readiness < 50 -> tired; sleep flag or late night -> sleep.
+  - Priority stack: sleep > tired > idle/random; after a forced state finishes, fall back to the idle system.
+  - Cooldown low-frequency randoms (grooming, look left/right) to avoid spam.
+  - Route every manual trigger (turn/dizzy, head/body touch) through the same event pipeline.
+- Steps:
+  1. Extract a StateController to track active state and priorities.
+  2. Prototype with mock inputs (sliders/buttons).
+  3. Hook in the real API once the state machine is stable.
 
-## 4. 日夜/时间逻辑（初步设想）
-- **夜间行为**：
-  - 22:00 以后自动转入 tired（可允许点头/摸下巴唤醒 1 分钟），23:00 强制 sleep；被唤醒后计时，1 分钟后重新 sleepy 或 sleep。
-  - 早晨（例如 07:00）根据 readiness：高 → Happy 阶段（播放 happy 一段时间），低 → 疲惫基调。
-- **日间疲劳累积**：
-  - 18:00 后逐渐将基调从 idle 向 tired 过渡。
-  - 训练/步数增长时提高 readiness，触发 energised 动画或清醒状态。
+## 4. Day/night timeline (draft)
+- Night rules:
+  - After 22:00 the pet drifts into tired; 23:00 forces sleep. Taps wake it for about 1 min, then it dozes again.
+  - Morning (about 07:00): high readiness -> happy greeting; low readiness -> starts the day tired.
+- Daily fatigue:
+  - After 18:00 gradually bias towards tired.
+  - Training/step gains temporarily boost readiness and refresh mood.
 
-## 5. 成就与后端事件
-- **目标**：任务完成、升级、饰品解锁等事件触发对应动画与浮层。
-- **计划**：
-  1. 统一事件接口（`GameEvent`），由后端回传或本地模拟触发。
-  2. Event → ViewModel → manualAnimationRequest（如 hurray + happy overlay）。
-  3. 确保事件动画与状态机兼容（播放后回到基础状态）。
+## 5. Events & achievements
+- Goal: unify task complete, level up, accessory unlock, etc.
+- Plan: create a GameEvent interface; events pipe into the ViewModel -> manualAnimationRequest (e.g. hurray + overlay); ensure compatibility with the state machine so animations return to baseline afterwards.
 
-## 6. watchOS & 其他平台
-- **目标**：复用上述动画逻辑，裁剪交互。
-- **计划**：当前保持简版，待 iOS 流程稳定后再同步。
+## 6. watchOS / other targets
+- Reuse the model above and strip interactions for watchOS once the iOS flow is proven.
 
 ---
 
-# 后续任务优先级
-1. 完成当前互动节奏最后的长按 bug 修复 & 节奏参数记录。
-2. Idle 随机池实现（walk 帧就绪后立刻接入）。
-3. 时间/状态机原型（夜晚困倦→睡觉、早晨醒来、准备度影响心情）。
-4. 冷却/随机事件与成就事件统一入口。
+## Immediate priorities
+1. Fix the long-press -> idle race and capture final gesture timings.
+2. Implement the idle random pool (after walk frames are ready).
+3. Build the time/state prototype (night fatigue, sleep, morning wake-up with readiness).
+4. Consolidate random cooldowns and event handling.
 
-# 额外需求备忘
-- 夜间 22:00 进入 tired；23:00 强制 sleep，互动可短暂唤醒但自动回睡。
-- 互动唤醒持续约 1 分钟，计时结束后恢复夜间状态。
-- 清晨根据准备度决定 Happy 或 Tired 起始心情。
-- 晚上 18:00 以后逐渐累积疲惫；训练/步数可暂时缓解。
-- Idle 随机池需支持 walk（待帧完成）。
-- 长按回 idle 的问题待排查（高优）。
-
+## Notes & open items
+- Night rules: 22:00 tired drift; 23:00 forced sleep; interactions wake the pet for about 1 min before it dozes again.
+- Morning readiness sets the day mood: good -> happy, poor -> tired baseline.
+- Evening fatigue: after 18:00 bias towards tired unless activity lifts readiness.
+- Idle pool requires walk frames (pending art update).
+- Long-press idle flash bug is high priority.
+- Mobile layout: top metrics (readiness/HRV/sleep score circles), middle free-roam pet area, bottom reminder banner.
+- Theme system: backgrounds/skins/accessories should be swappable; keep hooks for future room decor.
+- Daily mission system: one mission per day, generated from current readiness. If readiness is low next day, pet stays tired unless the user finishes the matching recovery task (e.g., 1 minute mindfulness), which clears fatigue.

@@ -1,10 +1,9 @@
-import SwiftUI
+﻿import SwiftUI
 import SpriteKit
 
 struct ContentView: View {
     @StateObject private var gameViewModel = GameViewModel()
     @State private var gameScene = GameScene()
-    @State private var sceneSize: CGSize = .zero
     @State private var hasLoadedInitialData = false
     @State private var manualReadiness: Double = 80
 
@@ -37,15 +36,9 @@ struct ContentView: View {
 
             levelUpOverlay
         }
-        .onChange(of: gameViewModel.currentAnimation) { newAnimation in
-            gameScene.updatePetAnimation(newAnimation)
-        }
-        .onChange(of: gameViewModel.petStatus.accessories) { newAccessories in
-            gameScene.updatePetAccessories(newAccessories)
-        }
-        .onChange(of: manualReadiness) { newValue in
-            gameViewModel.updateReadinessDisplay(to: Int(newValue))
-        }
+        .onChange(of: gameViewModel.currentAnimation) { gameScene.updatePetAnimation($0) }
+        .onChange(of: gameViewModel.petStatus.accessories) { gameScene.updatePetAccessories($0) }
+        .onChange(of: manualReadiness) { gameViewModel.updateReadinessDisplay(to: Int($0)) }
         .onChange(of: gameViewModel.manualAnimationRequest) { request in
             guard let request else { return }
             if request.names.count <= 1, let name = request.names.first {
@@ -55,20 +48,24 @@ struct ContentView: View {
             }
             gameViewModel.clearManualAnimationRequest()
         }
-        .onAppear {
-            if gameScene.interactionHandler == nil {
-                gameScene.interactionHandler = { [weak viewModel = gameViewModel] event in
-                    viewModel?.handleInteraction(event)
-                }
+        .onAppear(perform: setupInitialState)
+    }
+}
+
+private extension ContentView {
+    func setupInitialState() {
+        if gameScene.interactionHandler == nil {
+            gameScene.interactionHandler = { [weak viewModel = gameViewModel] event in
+                viewModel?.handleInteraction(event)
             }
-            if !hasLoadedInitialData {
-                hasLoadedInitialData = true
-                gameViewModel.updateReadinessDisplay(to: Int(manualReadiness))
-            }
+        }
+        if !hasLoadedInitialData {
+            hasLoadedInitialData = true
+            gameViewModel.updateReadinessDisplay(to: Int(manualReadiness))
         }
     }
 
-    private var backgroundLayer: some View {
+    var backgroundLayer: some View {
         LinearGradient(
             gradient: Gradient(colors: [Color(red: 0.14, green: 0.16, blue: 0.26), Color(red: 0.05, green: 0.05, blue: 0.09)]),
             startPoint: .top,
@@ -77,166 +74,135 @@ struct ContentView: View {
         .ignoresSafeArea()
     }
 
-    private var topStatusSection: some View {
-        VStack(spacing: 8) {
-            HStack {
-                readinessRing
-                VStack(alignment: .leading, spacing: 4) {
+    var topStatusSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(spacing: 16) {
+                metricCircle(
+                    title: "准备度",
+                    valueText: String(Int(gameViewModel.lastReadinessScore)),
+                    subtitle: gameViewModel.petStatus.readinessDiagnosis,
+                    progress: gameViewModel.lastReadinessScore / 100,
+                    gradient: [.green, .yellow, .orange, .red]
+                )
+                metricCircle(
+                    title: "HRV",
+                    valueText: String(format: "%.0f", gameViewModel.latestHRVScore),
+                    subtitle: "ms",
+                    progress: min(max(gameViewModel.latestHRVScore / 100.0, 0), 1),
+                    gradient: [.mint, .blue]
+                )
+                metricCircle(
+                    title: "睡眠",
+                    valueText: String(format: "%.0f", gameViewModel.latestSleepScore),
+                    subtitle: "score",
+                    progress: min(max(gameViewModel.latestSleepScore / 100.0, 0), 1),
+                    gradient: [.purple, .pink]
+                )
+            }
+
+            HStack(alignment: .center, spacing: 12) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text("等级 L\(gameViewModel.petStatus.level)")
-                        .font(.headline)
-                        .foregroundStyle(Color.white)
-                    Text(gameViewModel.petStatus.stateReason)
-                        .font(.caption)
-                        .foregroundStyle(Color.white.opacity(0.7))
-                        .lineLimit(2)
+                        .font(.subheadline)
+                        .foregroundStyle(.white)
+                    xpProgress
+                    if !gameViewModel.petStatus.stateReason.isEmpty {
+                        Text(gameViewModel.petStatus.stateReason)
+                            .font(.caption2)
+                            .foregroundStyle(.white.opacity(0.7))
+                            .lineLimit(2)
+                    }
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 4) {
-                    Text("情绪: \(gameViewModel.petStatus.happinessState.displayName)")
+                    Text("今日步数")
                         .font(.caption)
-                        .foregroundStyle(Color.white)
-                    Text("评分: \(gameViewModel.petStatus.happinessScore)")
-                        .font(.caption2)
-                        .foregroundStyle(Color.white.opacity(0.7))
+                        .foregroundStyle(.white.opacity(0.7))
+                    Text("\(gameViewModel.dailyStepCount)")
+                        .font(.headline)
+                        .foregroundStyle(.white)
                 }
             }
-        }
-    }
-
-    private var readinessRing: some View {
-        ZStack {
-            Circle()
-                .stroke(Color.white.opacity(0.15), lineWidth: 6)
-                .frame(width: 72, height: 72)
-
-            Circle()
-                .trim(from: 0, to: min(1.0, gameViewModel.lastReadinessScore / 100))
-                .stroke(
-                    AngularGradient(
-                        gradient: Gradient(colors: [.green, .yellow, .orange, .red]),
-                        center: .center
-                    ),
-                    style: StrokeStyle(lineWidth: 6, lineCap: .round)
-                )
-                .frame(width: 72, height: 72)
-                .rotationEffect(.degrees(-90))
-                .animation(.easeInOut(duration: 0.4), value: gameViewModel.lastReadinessScore)
-
-            VStack(spacing: 2) {
-                Text("\(Int(gameViewModel.lastReadinessScore))")
-                    .font(.title3)
-                    .fontWeight(.bold)
-                    .foregroundStyle(Color.white)
-                Text(gameViewModel.petStatus.readinessDiagnosis)
-                    .font(.caption2)
-                    .foregroundStyle(Color.white.opacity(0.7))
-            }
-        }
-    }
-
-    private func petAnimationSection(geometry: GeometryProxy) -> some View {
-        let targetHeight = geometry.size.height * 0.45
-        let targetSize = CGSize(width: geometry.size.width - 40, height: targetHeight)
-        DispatchQueue.main.async {
-            if sceneSize != targetSize {
-                sceneSize = targetSize
-                gameScene.size = targetSize
-            }
-        }
-
-        return SpriteView(scene: gameScene)
-            .frame(height: targetHeight)
-            .background(
-                RoundedRectangle(cornerRadius: 24)
-                    .fill(Color.white.opacity(0.08))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 24)
-                            .stroke(Color.white.opacity(0.12), lineWidth: 1)
-                    )
-            )
-            .shadow(color: Color.black.opacity(0.25), radius: 12, x: 0, y: 6)
-            .padding(.vertical, 12)
-    }
-
-    private var bottomControlsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("经验: \(gameViewModel.petStatus.xpDisplayText)")
-                    .font(.headline)
-                    .foregroundStyle(Color.white)
-                Spacer()
-                Text("总经验: \(gameViewModel.petStatus.totalXP)")
-                    .font(.caption)
-                    .foregroundStyle(Color.white.opacity(0.6))
-            }
-
-            ProgressView(value: gameViewModel.petStatus.xpProgress)
-                .progressViewStyle(LinearProgressViewStyle(tint: Color.blue))
-                .frame(height: 6)
-                .clipShape(RoundedRectangle(cornerRadius: 3))
-
-            HStack(spacing: 14) {
-                Button(action: { gameViewModel.generateMockData() }) {
-                    Label("获取数据", systemImage: "sparkles")
-                        .font(.subheadline)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 8)
-                        .background(Color.blue.opacity(0.9))
-                        .foregroundColor(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                }
-
-                Button(action: { gameViewModel.toggleAccessory(.sunglasses) }) {
-                    Text(gameViewModel.petStatus.accessories.contains(.sunglasses) ? "摘下墨镜" : "戴上墨镜")
-                        .font(.subheadline)
-                        .padding(.horizontal, 14)
-                        .padding(.vertical, 8)
-                        .background(Color.purple.opacity(0.9))
-                        .foregroundColor(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                }
-            }
-        }
-    }
-
-    private var manualTestingPanel: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("动画调试")
-                .font(.headline)
-                .foregroundStyle(Color.white)
-
-            readinessControls
-            Divider().background(Color.white.opacity(0.1))
-            eventControls
-            Divider().background(Color.white.opacity(0.1))
-            animationGrid
         }
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 18)
-                .fill(Color.white.opacity(0.07))
+                .fill(Color.white.opacity(0.08))
         )
     }
 
-    private var readinessControls: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("准备度：\(Int(manualReadiness))")
-                .font(.subheadline)
-                .foregroundStyle(.white)
-            Slider(value: $manualReadiness, in: 0...100, step: 1)
+    func metricCircle(title: String, valueText: String, subtitle: String, progress: Double, gradient: [Color]) -> some View {
+        VStack(spacing: 8) {
+            ZStack {
+                Circle()
+                    .stroke(Color.white.opacity(0.15), lineWidth: 6)
+                Circle()
+                    .trim(from: 0, to: min(max(progress, 0), 1))
+                    .stroke(
+                        AngularGradient(gradient: Gradient(colors: gradient), center: .center),
+                        style: StrokeStyle(lineWidth: 6, lineCap: .round)
+                    )
+                    .rotationEffect(.degrees(-90))
+                    .animation(.easeInOut(duration: 0.35), value: progress)
+                VStack(spacing: 4) {
+                    Text(valueText)
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                    Text(subtitle)
+                        .font(.caption2)
+                        .foregroundStyle(.white.opacity(0.7))
+                }
+            }
+            .frame(width: 80, height: 80)
+            Text(title)
+                .font(.caption2)
+                .foregroundStyle(.white.opacity(0.7))
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    var xpProgress: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule()
+                        .fill(Color.white.opacity(0.15))
+                        .frame(height: 10)
+                    Capsule()
+                        .fill(Color.orange)
+                        .frame(width: geo.size.width * CGFloat(min(max(gameViewModel.petStatus.xpProgress, 0), 1)), height: 10)
+                        .animation(.easeOut(duration: 0.35), value: gameViewModel.petStatus.xpProgress)
+                }
+            }
+            .frame(height: 10)
+            Text("XP \(gameViewModel.petStatus.xpIntoLevel)/\(gameViewModel.petStatus.xpForNextLevel)")
+                .font(.caption2)
+                .foregroundStyle(.white.opacity(0.7))
         }
     }
 
-    private var eventControls: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("事件模拟")
-                .font(.subheadline)
+    func petAnimationSection(geometry: GeometryProxy) -> some View {
+        VStack(spacing: 12) {
+            SpriteView(scene: gameScene)
+                .frame(height: geometry.size.width * 0.75)
+                .clipShape(RoundedRectangle(cornerRadius: 18))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18)
+                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                )
+        }
+    }
+
+    var bottomControlsSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("互动控制")
+                .font(.headline)
                 .foregroundStyle(.white)
 
             HStack(spacing: 12) {
                 Button("任务完成") { gameViewModel.triggerTaskCompleted() }
                 Button("等级提升") { gameViewModel.triggerLevelUpEvent() }
-                Button("获得装扮") { gameViewModel.triggerAccessoryUnlocked() }
+                Button("获取装扮") { gameViewModel.triggerAccessoryUnlocked() }
             }
             .buttonStyle(SecondaryCapsuleButtonStyle())
 
@@ -245,31 +211,41 @@ struct ContentView: View {
                 Button("恢复待机") { gameViewModel.resetToIdleState() }
             }
             .buttonStyle(SecondaryCapsuleButtonStyle())
+
+            readinessControls
         }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 18)
+                .fill(Color.white.opacity(0.06))
+        )
     }
 
-    private var animationGrid: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("选择动画")
+
+    var readinessControls: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("????\(Int(manualReadiness))")
                 .font(.subheadline)
                 .foregroundStyle(.white)
-
-            LazyVGrid(columns: animationColumns, spacing: 12) {
-                ForEach(GameViewModel.ManualAnimation.allCases) { animation in
-                    Button(animation.displayName) {
-                        gameViewModel.playManualAnimation(animation)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
-                    .background(Color.white.opacity(0.08))
-                    .foregroundColor(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
-            }
+            Slider(value: $manualReadiness, in: 0...100, step: 1)
         }
     }
 
-    private func errorBanner(_ message: String) -> some View {
+    var manualTestingPanel: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("手动触发动画")
+                .font(.headline)
+                .foregroundStyle(.white)
+            animationGrid
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 18)
+                .fill(Color.white.opacity(0.06))
+        )
+    }
+
+    func errorBanner(_ message: String) -> some View {
         VStack {
             Spacer()
             HStack(alignment: .center, spacing: 8) {
@@ -294,7 +270,7 @@ struct ContentView: View {
         .transition(.move(edge: .bottom).combined(with: .opacity))
     }
 
-    private var levelUpOverlay: some View {
+    var levelUpOverlay: some View {
         Group {
             if gameViewModel.showLevelUpAnimation {
                 ZStack {
@@ -309,7 +285,7 @@ struct ContentView: View {
                             .foregroundStyle(Color.yellow)
                         Text("等级 \(gameViewModel.petStatus.level)")
                             .font(.headline)
-                            .foregroundStyle(Color.white)
+                            .foregroundStyle(.white)
                     }
                     .padding(28)
                     .background(Color.black.opacity(0.5))
